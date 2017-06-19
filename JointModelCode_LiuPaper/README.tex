@@ -1,0 +1,101 @@
+
+\documentclass[12pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage{amsmath}
+\usepackage{epsfig}
+\usepackage{lscape}
+%\usepackage{rotating}
+\bibliographystyle{abbrv}
+%\bibliography{ref.bib}
+\usepackage{array}
+\usepackage{tablefootnote}
+\topmargin 0in \headheight 0.0in \textheight 9in \textwidth 6.5in
+\oddsidemargin 0.1in \evensidemargin 0.1in
+\renewcommand{\baselinestretch}{1.6}
+\newcommand{\beq}{\begin{equation}}
+\newcommand{\eeq}{\end{equation}}
+\newcommand{\ie}{\emph{i.e.}}
+\newcommand{\eg}{\emph{e.g.}}
+\newcommand{\etal}{\emph{et.al.}}
+\newcommand{\etc}{\emph{etc.}}
+
+\begin{document}
+
+\title{Documentation for Bayesian Joint Deconvolution Model}
+\author{Huayu Liu and Nichole E Carlson}
+\date{}
+\maketitle
+
+\section{General information}
+The code in this folder is for the joint Bayesian deconvolution model as investigated in the paper [Liu, et al. (2017) Modeling Associations between Latent Event Processes Governing Time Series of Jointly Secreted Pituitary Hormones].  To run this code, the user needs to compile the 8 *.c files in the src folder. Then to run the executable, the user needs to create an input file setting parameters in the priors, starting values for the MCMC algorithm and file names for output and data input. An example with numbers is provided in the simdata\_example folder. We also provide an example with words used to describe the numbers needed. Below we also provide a dictionary for the values that need to be in the input file.  In addition, there are still several parameters that are being hard coded in the jt\_deconvolution\_main.c file.  These include the priors on $\rho$ and $\nu$ on lines 273-278 and the starting values for $\rho$ and $\nu$ on lines 333 and 336 respectively. Finally the parameters in the Strauss are set on lines 339-339 and 277-278. 
+
+Two data files are needed, one for triggers hormone and the other for response hormone. The data files need to be a space delimited *.dat file with 1 column for time of observations in minutes (first column) plus a column of observations for each subject. There is no header row. two data files need to have exactly the same number of columns.
+
+In addition, in the directory a seed file ("seed.dat") is provided and needs to be in the directory with the complied executable file.  An example seed file is in this directory for ease of copying.  This file is the input for the random number generators.
+
+\section{Creating the input file}
+In the input.dat file the following are the values needed by row (space delimited). We first set the file names, then needs for the MCMC run length, then the parameters for the priors are specified, followed by starting values and initial proposal variances.
+\begin{enumerate}
+\item The name of the two data file for the subject being analyzed. The first one is the trigger hormone series and the second one is the response hormone series.
+\item The name of the root of the output file for the common parameters (number of pulses, baseline, half-life, variance parameters, etc.) and the name of the output file for the pulse specific parameters (pulse locations, mass and width). A subject number is added at the end of each file with the *.out extension.
+\item Number of subjects in the analysis and the number of MCMC iterations to run (thinning is hard coded at NN=50 in the joint\_mcmc.c file and the screen output is hard coded at NNN=5000 in mcmc.c).
+\item Mean ($\boldsymbol{m^{x,y}_{s}}$) of the prior on the population pulse mass and width mean vectors. The order is: trigger pulse mean, response pulse mass mean, trigger pulse width mean, response pulse width mean.
+with correlation 0.
+\item First three numbers: prior distribution of $\Sigma_{\alpha,s}$: mean of the subject-to-subject variation for mean mass in trigger hormone,  mean of the subject-to-subject variation for mean mass in response hormone, subject-level correlation between trigger and response hormone mass.\\
+Fourth to fifth number: upper bound on the uniform prior on the $\Sigma_{\omega,s}$: subject-to-subject variation for mean width in trigger hormone,  subject-to-subject variation for mean width in response hormone. The correlation between trigger and response hormone width is assumed to be 0.\\
+Sixth to seventh number: Variance of the prior on the population pulse mass for trigger and response hormone.\\
+Eighth to eleventh number: upper bound on the uniform prior on the pulse-to-pulse variation  for mass and width for trigger hormone ($\Upsilon^x_s$), and  pulse-to-pulse variation for mass and width for response hormone($\Upsilon^y_s$). \\
+\item Population Mean ($m^x_b$) and variance ($v^x_b$) of the prior on the baseline ($\mu^x_b$) and upper bound on the uniform prior on the SD of the subject-to-subject variation ($\sigma^x_b$) for trigger hormone, mean ($m^y_b$) and variance ($v^y_b$) of the prior on the baseline ($\mu^y_b$) and upper bound on the uniform prior on the SD of the subject-to-subject variation ($\sigma^y_b$) for response hormone.
+\item Population Mean ($m^x_h$) and variance ($v^x_h$) of the prior on the half-life ($\mu^x_h$) and upper bound on the uniform prior on the SD of the subject-to-subject variation ($\sigma^x_h$) for trigger hormone, mean ($m^y_h$) and variance ($v^y_h$) of the prior on the half-life ($\mu^y_h$) and upper bound on the uniform prior on the SD of the subject-to-subject variation ($\sigma^y_b$) for response hormone.
+\item The two parameters in the Inverse-Gamma prior on the model error variance parameter for trigger hormone ($\Sigma^x_e$), the two parameters in the Inverse-Gamma prior on the model error variance parameter ($\Sigma^y_e$) for response hormone.
+\item The starting values of $\boldsymbol{\mu^{x,y}_{s}}$: the mean  pulse mass for trigger and response hormone, the starting values of the mean pulse width for trigger and response hormone.
+\item First three numbers: the starting values for entries in $\Sigma_{\alpha,s}$: subject-to-subject variation for mean mass in trigger hormone,   subject-to-subject variation for mean mass in response hormone, subject-level correlation between trigger and response hormone mass.\\
+Fourth to fifth number: the starting values for $\Sigma_{\omega,s}$: subject-to-subject variation for mean width in trigger hormone,  subject-to-subject variation for mean width in response hormone.\\
+Sixth to ninth number: the starting values for $\Upsilon^x_s$ and $\Upsilon^y_s$.
+\item The starting values of the baseline ($u^x_b$) and SD of the subject-to-subject variation of the baselines ($\sigma^x_b$) for trigger hormone, the starting values of the baseline ($u^y_b$) and SD of the subject-to-subject variation of the baselines ($\sigma^y_b$) for response hormone.
+\item The starting values of the half-life ($u^x_h$) and SD of the subject-to-subject variation of the half-life ($\sigma^x_h$) for trigger hormone, the starting values of the half-life ($u^y_h$) and SD of the subject-to-subject variation of the baselines ($\sigma^y_h$) for response hormone.
+\item The starting value for the model error variance.
+\item The initial proposal variances for subject level pulse width variance for trigger and response hormone.
+\item The initial proposal variances for variance of baseline and half-life for trigger and response hormone.
+\item The initial proposal variances for  subject mean mass for trigger and response pulse mass, and their correlation.
+\item The initial proposal variances for subject level pulse width for trigger and response hormone.
+\item The initial proposal variances for pulse level variance for  mass and width for trigger and response hormone.
+\item The initial proposal variances for subject level baseline and half-life variance for trigger and response hormone.
+\item The initial proposal variances for pulse-level mass and width for trigger and response hormone.
+\item The initial proposal variances for pulse locations for trigger and response hormone.
+\item The initial proposal variances for $\eta$ in the t-distribution for pulse level mass and width for trigger and response hormone.
+\item The initial proposal variances for expected number of response pulses associated with each trigger ($\rho$) and spread parameter for each trigger-response pair ($\nu$).
+
+
+\end{enumerate}
+
+\section{Interpreting the output files}
+\begin{enumerate}
+\item For each subject there is common hormone parameters, and pulse parameters file (*.out, both named by the user in the input file for trigger and response hormone. There is also a population parameters file for trigger and response hormone (fileroot from above.out. Same name as the subject common parameter file without subject number). The files for trigger hormone contain x, and the files for response hormone contain y.
+\item Population parameters output file: These are the parameters that are common across subjects.  The columns are: square of the spread parameter for each trigger-response pair ($\nu^2$), the expected number of response pulse for each trigger ($\rho$), mean pulse mass ($\mu_\alpha$), mean pulse width ($\mu_\omega$), four entries in the variance-covariance matrix of subject-to-subject level pulse mass between trigger and response hormone, variance of subject-to-subject pulse width, Mean baseline and SD of baselines between subjects. Mean half-life and SD of half-lives between subjects. Model error variance. The response hormone file dose not have first two columns.
+\item Subject level common parameters file: These are the parameters that are common across pulses in a subject. The columns are: number of pulses ($N_s$), mean pulse mass $\mu_{\alpha}$, mean pulse width $\mu_{\omega}$, baseline ($\theta_b$), half-life ($\theta_h$). The subject level common parameter file for trigger hormone also has two column of $\nu^2$ and $\rho$ as last two column.
+\item Pulse parameters output file: These are the pulse specific parameters. The columns are:  iteration number, number of pulses ($N_s$), pulse number in this iteration (a counter), pulse mass ($\alpha_k$), pulse width ($\omega_k$), pulse location ($\tau_k$), and two $\eta$ parameters in drawing the pulse level mass and width using t-distribution.
+\end{enumerate}
+
+\section{Interpreting the screen output}
+Every 5000 iterations the following output information is written to the screen. The purpose of the output is generally to monitor acceptance rates prior to a full run being complete.  Each write to the screen has the following form:
+\begin{enumerate}
+\item The iteration number.
+\item The current parameter values for the trigger hormone:  iteration, $\nu$ the response width in the Cox model, mean baseline, $\rho$ the after number of responses for each trigger, mean mass and width, subject to subject variance and covariance of pulse masses between trigger and response pulse mass means, variance of the pulse widths, pulse to pulse variation in mass and width, mean ),  mean baseline, mean half-life, subject to subject variance of baseline and half-life, model error variance for trigger (labelled with LH) and response (labelled with FSH) hormone.
+\item The current parameter values for the response hormone:  iteration, mean mass and width, subject to subject variance and covariance of pulse masses between trigger and response pulse mass means, variance of the pulse widths, pulse to pulse variation in mass and width, mean ),  mean baseline, mean half-life, subject to subject variance of baseline and half-life, model error variance for trigger (labelled with LH) and response (labelled with FSH) hormone.
+\item Acceptance rates for trigger and response pulse parameters.
+\item Current listing of pulses for the trigger and response for each person in the study.
+\end{enumerate}
+
+
+\section{Compiling the code}
+A makefile exists in the file for compiling the c code in this directory.
+
+\begin{enumerate}
+\item jt\_deconvolution\_main.c: This file reads in the data. Sets the initial values, the priors and the proposals for the MH algorithms. It initializes the pulse parameter lists and the cluster lists.  It calls the MCMC algorithm.
+\item jt\_format\_data.c: This file is called in deconvolution\_main.c and is the algorithm for reading in the data.
+\item jt\_mcmc.c: This file is the birth-death MCMC and other MCMC algorithm (function mcmc) and controls screen and file output. It is called from jt\_deconvolution\_main.c.
+\item jt\_birthdeath.c: This file is the birth-death algorithm for the pulse locations.  The function birthdeath is called from the linklistv2.c file.
+\item The other files in the directory are supporting subroutines for the random number generators, etc.
+\end{enumerate}
+
+\end{document} 
