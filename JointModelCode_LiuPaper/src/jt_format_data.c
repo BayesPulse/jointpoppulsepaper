@@ -53,18 +53,17 @@ double **read_data_file(char *datafile,int *N,int s)
     exit(0);
   }
 
-  *N=0;
+  *N = 0;
  /* not interested in the column names, read them in and forget about them */
-  labels = (char *)calloc(50,sizeof(char *));
+  //labels = (char *)calloc(50,sizeof(char *));
 
   /*for(j=0;j<(s+1);j++)
     fscanf(inf,"%s",labels);*/
  /**************************************************************************/
-  k=0;
-  while (fscanf(inf,"%lf",&y) != EOF)
-      k++;
+  k = 0;
+  while (fscanf(inf, "%lf", &y) != EOF) k++;
 
-     printf("k=%d\n",k);
+  printf("k=%d\n",k);
 
   *N=k/(s+1);
 

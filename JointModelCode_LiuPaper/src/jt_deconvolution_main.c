@@ -342,7 +342,7 @@ int main(int argc,char *argv[])
 
     parms_l->numsub =parms_f->numsub = subj;
 
-    fscanf(finput,"%lf %lf \n", &propvar[0], &propvar[1]);  /*15th lineï¼?prop for population width variance */
+    fscanf(finput,"%lf %lf \n", &propvar[0], &propvar[1]);  /*15th lineï¿½?prop for population width variance */
     fscanf(finput,"%lf %lf %lf %lf\n", &propvar[2],&propvar[3], &propvar[4], &propvar[5]); /*16 th line: prop for four variance term of population md*/
     fscanf(finput,"%lf %lf %lf\n", &propvar[6], &propvar[7],&propvar[8]); /*17 th line: prop for subject mass, third is the cor*/
     fscanf(finput,"%lf %lf\n", &propvar[9], &propvar[10]); /*18th line: uwi*/

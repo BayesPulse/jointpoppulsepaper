@@ -247,8 +247,7 @@ void mcmc(Subject_type *sublist, Common_parms *parms_l, Common_parms *parms_f, d
 	void draw_bh_mean_l(Subject_type *sublist, Priors *priors, Common_parms *parms, unsigned long *seed, Hyper_priors *hyper);
 	void draw_fe_priors_w_var(Subject_type *sublist, Priors *priors, double v1, double v2, unsigned long *seed, Hyper_priors *hyper);
 
-	void draw_bh_l(Subject_type *, Common_parms *, Priors *, double **,
-		int, unsigned long *, double **);
+  void draw_bh_l(Subject_type *, Common_parms *, Priors *, double **, int, unsigned long *, double **);
 	void draw_bh_f(Subject_type *, Common_parms *, Priors *, double **,
 		int, unsigned long *, double **);
 
@@ -277,10 +276,8 @@ void mcmc(Subject_type *sublist, Common_parms *parms_l, Common_parms *parms_f, d
 	void draw_fe_precision_l(Subject_type *, Priors *, Common_parms *, double, double, unsigned long *);
 	void draw_fe_precision_f(Subject_type *, Priors *, Common_parms *, double, double, unsigned long *);
 
-	void draw_bh_l(Subject_type *, Common_parms *, Priors *, double **,
-		int, unsigned long *, double **);
-	void draw_bh_f(Subject_type *, Common_parms *, Priors *, double **,
-		int, unsigned long *, double **);
+  void draw_bh_l(Subject_type *, Common_parms *, Priors *, double **, int, unsigned long *, double **);
+  void draw_bh_f(Subject_type *, Common_parms *, Priors *, double **, int, unsigned long *, double **);
 	void draw_random_effects_l(double **, Subject_type *, Common_parms *, int, double, double, unsigned long *);
 	void draw_random_effects_f(double **, Subject_type *, Common_parms *, int, double, double, unsigned long *);
 
@@ -423,84 +420,80 @@ strcat(filel, ".out");
 		/* run the birth-death algorithm to select pulses */
 
 		parms_f->iter = i;
-		parms_l->iter = i;
+    parms_l->iter = i;
 
 
 
-		/* draw fixed effects priors; mua and muw,the population mean*/
+    /* draw fixed effects priors; mua and muw,the population mean*/
 
-		draw_fe_prior_a_mean(sublist, priors, parms_f, seed, hyper);
-		draw_fe_prior_w_mean(sublist, priors, parms_f, seed, hyper);
-
-
-
-		/* draw fixed effects prior variances; sma and smw*/
-
-		draw_fe_prior_a_var(sublist, priors, parms_f, seed, hyper);
-		draw_fe_priors_w_var(sublist, priors, vfewv_l, vfewv_f, seed, hyper);  /*proposal variance */
-
-		/* draw mean baseline and halflife; mub and muh*/
-
-		draw_bh_mean_f(sublist, priors, parms_f, seed, hyper);
-		draw_bh_mean_l(sublist, priors, parms_l, seed, hyper);
-
-		///* draw variance for baseline and halflife; sb and sh*/
-
-		draw_bh_var_l(sublist, priors, vfebv_l, vfehv_l, seed, hyper);
-		draw_bh_var_f(sublist, priors, vfebv_f, vfehv_f, seed, hyper);
-
-		/////* draw subject specific means; muak and muwk*/
-
-		draw_fixed_mass(sublist, priors, parms_l, parms_f, seed, pmean_var);
-		draw_fixed_width_l(sublist, priors, parms_l, vfepw_l, seed);
-		draw_fixed_width_f(sublist, priors, parms_f, vfepw_f, seed);
-
-		/* draw mass and width variances; sa and sw*/
-
-		draw_fe_precision_l(sublist, priors, parms_l, vfepmv_l, vfepwv_l, seed);
-		draw_fe_precision_f(sublist, priors, parms_f, vfepmv_f, vfepwv_f, seed);
-
-		birth_death_l(sublist, ts_l, parms_l, N, seed, i);
-		//
-		
-			draw_times_l(sublist, parms_l, ts_l,
-				N, seed, vtime_l);
-		
-			////////
-			//draw_times_old(tsublist, tparms_l, ts_l,
-			//	N, seed, vtime_l);
-			draw_random_effects_l(ts_l, sublist, parms_l, N, vrem_l, vrew_l, seed);
-			draw_eta_l(sublist, parms_l, seed, veta_l);
-			
-
-		draw_bh_l(sublist, parms_l, priors, ts_l,
-			N, seed, pmd_var_l);
-		//////
-
-		/////* draw pulse locations; tauki*/
-		birth_death_f(sublist, ts_f, parms_f, parms_l, N, seed, i);
-		////draw_times_old_f(tsublist, tparms_f, ts_f,
-		////	N, seed, vtime_f);
-		
-		draw_times_f(sublist, parms_f, parms_l, ts_f,
-			N, seed, vtime_f);
-		draw_eta_f(sublist, parms_f, seed, veta_f);
-	
-		//
-		draw_random_effects_f(ts_f, sublist, parms_f, N, vrem_f, vrew_f, seed);
-
-		draw_bh_f(sublist, parms_f, priors, ts_f,
-			N, seed, pmd_var_f);
+    draw_fe_prior_a_mean(sublist, priors, parms_f, seed, hyper);
+    draw_fe_prior_w_mean(sublist, priors, parms_f, seed, hyper);
 
 
-		/////* draw pulse mass and width; Aki and s2pki*/
 
-		
-		mh_logalphamean(sublist, parms_l, priors, seed, vrho);
-		mh_logsigmean(sublist, parms_l, priors, seed, vnu);
+    /* draw fixed effects prior variances; sma and smw*/
+
+    draw_fe_prior_a_var(sublist, priors, parms_f, seed, hyper);
+    draw_fe_priors_w_var(sublist, priors, vfewv_l, vfewv_f, seed, hyper);  /*proposal variance */
+
+    /* draw mean baseline and halflife; mub and muh*/
+
+    draw_bh_mean_f(sublist, priors, parms_f, seed, hyper);
+    draw_bh_mean_l(sublist, priors, parms_l, seed, hyper);
+
+    ///* draw variance for baseline and halflife; sb and sh*/
+
+    draw_bh_var_l(sublist, priors, vfebv_l, vfehv_l, seed, hyper);
+    draw_bh_var_f(sublist, priors, vfebv_f, vfehv_f, seed, hyper);
+
+    /////* draw subject specific means; muak and muwk*/
+
+    draw_fixed_mass(sublist, priors, parms_l, parms_f, seed, pmean_var);
+    draw_fixed_width_l(sublist, priors, parms_l, vfepw_l, seed);
+    draw_fixed_width_f(sublist, priors, parms_f, vfepw_f, seed);
+
+    /* draw mass and width variances; sa and sw*/
+
+    draw_fe_precision_l(sublist, priors, parms_l, vfepmv_l, vfepwv_l, seed);
+    draw_fe_precision_f(sublist, priors, parms_f, vfepmv_f, vfepwv_f, seed);
+
+    birth_death_l(sublist, ts_l, parms_l, N, seed, i);
+    //
+
+    draw_times_l(sublist, parms_l, ts_l, N, seed, vtime_l);
+
+    ////////
+    //draw_times_old(tsublist, tparms_l, ts_l,
+    //  N, seed, vtime_l);
+    draw_random_effects_l(ts_l, sublist, parms_l, N, vrem_l, vrew_l, seed);
+    draw_eta_l(sublist, parms_l, seed, veta_l);
 
 
-		/* draw model error; s2e*/
+    draw_bh_l(sublist, parms_l, priors, ts_l, N, seed, pmd_var_l);
+    //////
+
+    /////* draw pulse locations; tauki*/
+    birth_death_f(sublist, ts_f, parms_f, parms_l, N, seed, i);
+    ////draw_times_old_f(tsublist, tparms_f, ts_f,
+    ////  N, seed, vtime_f);
+
+    draw_times_f(sublist, parms_f, parms_l, ts_f, N, seed, vtime_f);
+    draw_eta_f(sublist, parms_f, seed, veta_f);
+
+    //
+    draw_random_effects_f(ts_f, sublist, parms_f, N, vrem_f, vrew_f, seed);
+
+
+    draw_bh_f(sublist, parms_f, priors, ts_f, N, seed, pmd_var_f);
+
+    /////* draw pulse mass and width; Aki and s2pki*/
+
+
+    mh_logalphamean(sublist, parms_l, priors, seed, vrho);
+    mh_logsigmean(sublist, parms_l, priors, seed, vnu);
+
+
+    /* draw model error; s2e*/
 		ssq_l = error_squared_l(ts_l, sublist, parms_l, N);
 		parms_l->sigma = inverse_gamma(priors->alpha_l + (parms_l->numsub*N) / 2, priors->beta_l + 0.5*ssq_l, seed);
 		parms_l->lsigma = log(parms_l->sigma);
@@ -571,10 +564,40 @@ strcat(filel, ".out");
 			}
 			priors->re_var = cholesky_invert(2, sigma_p);
 			/*Print common parameters to c1.out file*/
-			fprintf(common_l, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf  %lf %lf %lf   %lf %lf\n", i, parms_l->nu,parms_l->rho,priors->fe_mean_l[0], priors->fe_mean_l[1], priors->re_var[0][0], priors->re_var[0][1], priors->fe_precision_wl, parms_l->re_precision[0], parms_l->re_precision[1],priors->meanbh_l[0], priors->meanbh_l[1], priors->varbh_l[0], priors->varbh_l[1], parms_l->sigma);
+      fprintf(common_l, 
+              "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf  %lf %lf %lf %lf %lf\n", 
+              i,
+              parms_l->nu,
+              parms_l->rho,
+              priors->fe_mean_l[0],
+              priors->fe_mean_l[1],
+              priors->re_var[0][0],
+              priors->re_var[0][1],
+              priors->fe_precision_wl,
+              parms_l->re_precision[0],
+              parms_l->re_precision[1],
+              priors->meanbh_l[0],
+              priors->meanbh_l[1],
+              priors->varbh_l[0],
+              priors->varbh_l[1],
+              parms_l->sigma);
 			fflush(common_l);
 
-			fprintf(common_f, "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n", i, priors->fe_mean_f[0], priors->fe_mean_f[1], priors->re_var[1][1], priors->re_var[0][1],priors->fe_precision_wl, parms_f->re_precision[0], parms_f->re_precision[1], priors->meanbh_f[0], priors->meanbh_f[1], priors->varbh_f[0], priors->varbh_f[1], parms_f->sigma);
+      fprintf(common_f,
+              "%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf\n",
+              i,
+              priors->fe_mean_f[0],
+              priors->fe_mean_f[1],
+              priors->re_var[1][1],
+              priors->re_var[0][1],
+              priors->fe_precision_wl,
+              parms_f->re_precision[0],
+              parms_f->re_precision[1],
+              priors->meanbh_f[0],
+              priors->meanbh_f[1],
+              priors->varbh_f[0],
+              priors->varbh_f[1],
+              parms_f->sigma);
 			fflush(common_f);
 			fflush(stdout);
 		}
@@ -584,25 +607,40 @@ strcat(filel, ".out");
 			printf("\n\n");
 			printf("iter = %d \n", i);
 			printf("lh: mu_b %.2lf mu_h %.4lf mu_a %.2lf mu_w %.2lf  v %.4le\n",
-				priors->meanbh_l[0], priors->meanbh_l[1], priors->fe_mean_l[0], priors->fe_mean_l[1], parms_l->sigma);
+             priors->meanbh_l[0], priors->meanbh_l[1], priors->fe_mean_l[0],
+             priors->fe_mean_l[1], parms_l->sigma);
 			printf("fsh: mu_b %.2lf mu_h %.4lf mu_a %.2lf mu_w %.2lf  v %.4le\n",
-				priors->meanbh_f[0], priors->meanbh_f[1], priors->fe_mean_f[0], priors->fe_mean_f[1], parms_f->sigma);
+             priors->meanbh_f[0], priors->meanbh_f[1], priors->fe_mean_f[0],
+             priors->fe_mean_f[1], parms_f->sigma);
 			subject = sublist->succ;
 			printf("lh: pct s_ma = %.2lf  pct A_ki = %.2lf , eta_m=%.2lf, eta_w=%.2lf\n",
-				(double)afepmv_l / (double)nfepmv_l, (double)arem_l / (double)nrem_l, (double)ae_ml / (double)ne_ml, (double)ae_wl / (double)ne_wl);
+             (double)afepmv_l / (double)nfepmv_l, 
+             (double)arem_l / (double)nrem_l, 
+             (double)ae_ml / (double)ne_ml, 
+             (double)ae_wl / (double)ne_wl);
 			printf("pct s_mw = %.2lf pct s_w = %.2lf pct s2p_ki = %.2lf \n",
-				(double)afepwv_l / (double)nfepwv_l, (double)afewv_l / (double)nfewv_l, (double)arew_l / (double)nrew_l);
+             (double)afepwv_l / (double)nfepwv_l, 
+             (double)afewv_l / (double)nfewv_l, 
+             (double)arew_l / (double)nrew_l);
 			printf("pct s_b = %.2lf pct s_h = %.2lf pct B-HL = %.2lf pct time = %.2lf \n",
-
-
-
-				(double)afebv_l / (double)nfebv_l, (double)afehv_l / (double)nfehv_l, (double)adelta_l / (double)ndelta_l, (double)atime_l / (double)ntime_l);
+             (double)afebv_l / (double)nfebv_l,
+             (double)afehv_l / (double)nfehv_l,
+             (double)adelta_l / (double)ndelta_l,
+             (double)atime_l / (double)ntime_l);
 			printf("fsh: pct s_ma = %.2lf  pct A_ki = %.2lf , eta_m=%.2lf, eta_w=%.2lf\n",
-				(double)afepmv_f / (double)nfepmv_f, (double)arem_f / (double)nrem_f, (double)ae_mf / (double)ne_mf, (double)ae_wf / (double)ne_wf);
+             (double)afepmv_f / (double)nfepmv_f,
+             (double)arem_f / (double)nrem_f,
+             (double)ae_mf / (double)ne_mf,
+             (double)ae_wf / (double)ne_wf);
 			printf("pct s_mw = %.2lf pct s_w = %.2lf pct s2p_ki = %.2lf \n",
-				(double)afepwv_f / (double)nfepwv_f, (double)afewv_f / (double)nfewv_f, (double)arew_f / (double)nrew_f);
+             (double)afepwv_f / (double)nfepwv_f,
+             (double)afewv_f / (double)nfewv_f,
+             (double)arew_f / (double)nrew_f);
 			printf("pct s_b = %.2lf pct s_h = %.2lf pct B-HL = %.2lf pct time = %.2lf \n \n \n ",
-				(double)afebv_f / (double)nfebv_f, (double)afehv_f / (double)nfehv_f, (double)adelta_f / (double)ndelta_f, (double)atime_f / (double)ntime_f);
+             (double)afebv_f / (double)nfebv_f,
+             (double)afehv_f / (double)nfehv_f,
+             (double)adelta_f / (double)ndelta_f,
+             (double)atime_f / (double)ntime_f);
 			
 			printf("%d    \n", sublist->succ->numnode_l);
 			printf("%d    \n", sublist->succ->numnode_f);
@@ -724,12 +762,6 @@ strcat(filel, ".out");
 
 
 	fclose(common_f);
-
-
-
-
-
-
 
 
 
