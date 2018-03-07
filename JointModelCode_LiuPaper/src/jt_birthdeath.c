@@ -161,11 +161,11 @@ void birth_death_l(Subject_type *sublist, double **ts, Common_parms *parms, int 
       i = 0;
       node = list->succ;
 
-			/*  printf("num_node = %d \n",num_node);*/
+      /*  printf("num_node = %d \n",num_node);*/
 
       while (node != NULL) {
         partial_likelihood[i] = likelihood2(subject->driver, ts, parms, N, node, subject->basehalf_l[0]);
-				/*printf("partial likelihood = %lf \n",partial_likelihood[i]);*/
+        /*printf("partial likelihood = %lf \n",partial_likelihood[i]);*/
         i++;
         node = node->succ;
       }
@@ -482,14 +482,14 @@ void birth_death_f(Subject_type *sublist, double **ts, Common_parms *parms, Comm
                                        Birth_rate, parms_cox);
       }
       /*
-            node = list->succ;
-            i=0;
-            while (node != NULL) {
-            printf("death_rate = %lf \n",death_rate[i]);
-            i++;
-            node = node->succ;
-            }
-      */
+         node = list->succ;
+         i=0;
+         while (node != NULL) {
+         printf("death_rate = %lf \n",death_rate[i]);
+         i++;
+         node = node->succ;
+         }
+         */
       /*The next portion computes D = sum(d_i); This is a little more complicated
         than summing them up because of precision issues.*/
       if (death_rate != NULL) {
@@ -668,9 +668,9 @@ void mean_contribution(Node_type *node, double **ts, Common_parms *parms, int N,
   double erf(double);
 
   /*  printf("theta1 = %lf \n",node->theta[1]);
-    printf("halflife = %lf \n",halflife);
-    printf("time = %lf \n",node->time);
-    printf("theta0 = %lf \n",node->theta[0]);*/
+      printf("halflife = %lf \n",halflife);
+      printf("time = %lf \n",node->time);
+      printf("theta0 = %lf \n",node->theta[0]);*/
 
   z = node->theta[1] * 0.6931472 / halflife;
   y = 0.6931472*(0.5*z / halflife + node->time / halflife);
@@ -685,8 +685,8 @@ void mean_contribution(Node_type *node, double **ts, Common_parms *parms, int N,
   }
   /* printf("mc55 = %lf \n",node->mean_contrib[55]);
 
-   fflush(stdout);
-   */
+     fflush(stdout);
+     */
 }
 
 /*********************************************************************/
@@ -732,8 +732,8 @@ double *mean_concentration(Node_type *list, Common_parms *parms, int N, Node_typ
         x[i] += node->mean_contrib[i];
     }
     /*printf("mc15 = %lf \n",node->mean_contrib[15]);
-    printf("x45 = %lf \n",x[45]);
-    */
+      printf("x45 = %lf \n",x[45]);
+      */
     node = node->succ;
   }
 
@@ -773,7 +773,7 @@ double *mean_concentration(Node_type *list, Common_parms *parms, int N, Node_typ
 
 
 double likelihood2(Node_type *list, double **ts, Common_parms *parms, int N,
-  Node_type *node_out, double baseline)
+                   Node_type *node_out, double baseline)
 {
   /* This function computes the likelihood under inputted parameters */
   /* The output is a scalar */
@@ -839,18 +839,18 @@ double *calc_death_rate_f(Node_type *parent, Node_type *list, int num_node,
     i = 0;
 
     /* Calculate the coefficient of the distribution of the taus conditional
-     on number of pulses. In this portion, I have an extra num_node in the
-     numerator */
+       on number of pulses. In this portion, I have an extra num_node in the
+       numerator */
 
     while (node != NULL) {
       /*    pnode = parent->succ; */
-          /*calculate the conditional intensity of pulse l*/
+      /*calculate the conditional intensity of pulse l*/
       /*intsum = 0;
-      death_rate[i] = 0.01;
-      while (pnode != NULL) {
-      intsum += exp(parms_cox->lrho) / sqrt(2 * 3.14159*parms_cox->nu) * exp(-1 / (2 * parms_cox->nu) * (node->time - pnode->time) * (node->time - pnode->time));
-      pnode = pnode->succ;
-      }  */
+        death_rate[i] = 0.01;
+        while (pnode != NULL) {
+        intsum += exp(parms_cox->lrho) / sqrt(2 * 3.14159*parms_cox->nu) * exp(-1 / (2 * parms_cox->nu) * (node->time - pnode->time) * (node->time - pnode->time));
+        pnode = pnode->succ;
+        }  */
       if (node->lambda != 0)
       {
 
@@ -906,8 +906,8 @@ double *calc_death_rate(Node_type *list, int num_node, double *partial_likelihoo
     i = 0;
 
     /* Calculate the coefficient of the distribution of the taus conditional
-    on number of pulses. In this portion, I have an extra num_node in the
-    numerator */
+       on number of pulses. In this portion, I have an extra num_node in the
+       numerator */
     coef_num = 1;
     for (j = 1; j < mmm; j++)
       coef_num *= j;
@@ -918,31 +918,31 @@ double *calc_death_rate(Node_type *list, int num_node, double *partial_likelihoo
       if (mmm > 0)
 
         /*This computes the portion of death rate due to the Poisson prior on
-        N, the birth rate, and the likelihood */
+          N, the birth rate, and the likelihood */
         x = log(num_node*Birth_rate / r) + partial_likelihood[i] - full_likelihood;
       else
         x = log(Birth_rate / num_node) + partial_likelihood[i] - full_likelihood;
 
       /*Now, compute the portion of the death rate due to distribution of the
-      taus conditional on number of pulses. */
+        taus conditional on number of pulses. */
       if (mmm > 1) {
         if (i == 0)
 
           /*If we are on the first pulse*/
           x += (mmm - 1)*log(fitend - fitstart) +
-          (mmm - 1)*log((node->succ->time - fitstart) / ((node->succ->time - node->time)*(node->time - fitstart))) + log(coef_num / coef_denom);
+            (mmm - 1)*log((node->succ->time - fitstart) / ((node->succ->time - node->time)*(node->time - fitstart))) + log(coef_num / coef_denom);
 
         else if (i > 0) {
 
           /*If we are not on the first pulse */
           if (node->succ)
             x += (mmm - 1)*log(fitend - fitstart) +
-            (mmm - 1)*log((node->succ->time - node->pred->time) / ((node->succ->time - node->time)*(node->time - node->pred->time))) + log(coef_num / coef_denom);
+              (mmm - 1)*log((node->succ->time - node->pred->time) / ((node->succ->time - node->time)*(node->time - node->pred->time))) + log(coef_num / coef_denom);
 
           /*If we are not on the first or last pulse */
           else
             x += (mmm - 1)*log(fitend - fitstart) +
-            (mmm - 1)*log((fitend - node->pred->time) / ((fitend - node->time)*(node->time - node->pred->time))) + log(coef_num / coef_denom);
+              (mmm - 1)*log((fitend - node->pred->time) / ((fitend - node->time)*(node->time - node->pred->time))) + log(coef_num / coef_denom);
         }
       }
 
@@ -992,8 +992,8 @@ double *calc_death_rate_l(Node_type *parent, Node_type *list, int num_node, doub
 
     while (deathnode != NULL){
       /* Calculate the coefficient of the distribution of the taus conditional
-       on number of pulses. In this portion, I have an extra num_node in the
-       numerator */
+         on number of pulses. In this portion, I have an extra num_node in the
+         numerator */
       node = list->succ;
       ratio = 0;
 
