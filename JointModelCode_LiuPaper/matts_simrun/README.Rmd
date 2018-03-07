@@ -1,0 +1,68 @@
+
+# README
+
+The data in this directory is the simdata_example data.  
+
+The results show weak or non-convergence of a number of population level
+parameters.
+
+Should label the parameters next and re-examine which are failing to converge
+
+```{r}
+
+library(tidyverse)
+
+# Read in population parameters chains for LH and FSH
+common_lh  <- read_delim("commonx1a.out.out", delim = " ", col_names = FALSE)
+common_fsh <- read_delim("commonx1a.out.out", delim = " ", col_names = FALSE)
+
+# Cleaning is the same
+cleanchains_popcommon <- function(data, trim = 100000) {
+
+  data %>%
+  select(-X11) %>%
+  gather(key = varname, value = value, -X1) %>%
+  mutate_at(vars(varname), factor) %>%
+  mutate_at(vars(value), as.numeric) %>%
+  filter(X1 > trim)
+
+}
+
+common_lh  <- common_lh %>% cleanchains_popcommon(trim=1000)
+common_fsh <- common_fsh %>% cleanchains_popcommon(trim=1000)
+
+
+lh_trace <- common_lh %>%
+  ggplot(aes(x = X1, y = value)) +
+    geom_path() +
+    facet_wrap(~ varname, scales = "free")
+
+lh_posterior <- common_lh %>%
+  ggplot(aes(x = value)) +
+    geom_histogram() +
+    facet_wrap(~ varname, scales = "free")
+
+
+
+fsh_trace <- common_fsh %>%
+  ggplot(aes(x = X1, y = value)) +
+    geom_path() +
+    facet_wrap(~ varname, scales = "free")
+
+fsh_posterior <- common_fsh %>%
+  ggplot(aes(x = value)) +
+    geom_histogram() +
+    facet_wrap(~ varname, scales = "free")
+```
+
+
+```{r FSH}
+fsh_trace
+fsh_posterior
+```
+
+```{r LH}
+lh_trace
+lh_posterior
+```
+
