@@ -1,3 +1,7 @@
 jtdecon
 tags
 *.o
+*.aux
+*.log
+*.synctex.gz
+
