@@ -5,38 +5,66 @@
 
 extern double M;
 
-double kiss(unsigned long *seed_)
-/* Generator proposed by Marsaglia and Zaman, 1993. See
-   Robert and Casella (1999, pages 41-43) for details.  
-   Watch out: the last line
-        x = ((double) (*i+*j+*k)*exp(-32*log(2.0)));
-   must be calibrated, depending on the precision 
-   of the computer. */
-{
-  double x;
-  unsigned int seed[3];
+// Matt's KISS() from thesis
+double kiss(unsigned long *seed) {
 
-  /*Whoever written this code assumed 32 bit system. I don't want to change the definition of *seed, so I am doing this blunt force truncation.  God has mercy on me...*/
-  seed[0]=(int)seed_[0];
-  seed[1]=(int)seed_[1];
-  seed[2]=(int)seed_[2];
-  /* End of ugly trunction*/;
+  /* Generator proposed by Marsaglia and Zaman, 1993. See Robert and Casella
+   * (1999, pages 41-43) for details.  
+   * Watch out: the last line
+   *      x = ((double) (*i+*j+*k)*exp(-32*log(2.0)));
+   * must be calibrated, depending on the precision of the computer. */
+
+  double x;
 
   seed[1] = seed[1] ^ (seed[1]<<17);
   seed[2] = (seed[2] ^ (seed[2]<<18)) & 0x7FFFFFFF;
   seed[0] = 69069*seed[0]+23606797;
   seed[1] ^= (seed[1]>>15);
   seed[2] ^= (seed[2]>>13);
-
-  x = (double)((seed[0]+seed[1]+seed[2])*M);
- 
-  /* save the change to *seed_*/
-  seed_[0]=seed[0];
-  seed_[1]=seed[1];
-  seed_[2]=seed[2];
+  x = ((double) (seed[0]+seed[1]+seed[2])*M);
 
   return(x);
+
 }
+//double kiss(unsigned long *seed_)
+///* Generator proposed by Marsaglia and Zaman, 1993. See
+//   Robert and Casella (1999, pages 41-43) for details.  
+//   Watch out: the last line
+//        x = ((double) (*i+*j+*k)*exp(-32*log(2.0)));
+//   must be calibrated, depending on the precision 
+//   of the computer. */
+//{
+//  double x;
+//  unsigned int seed[3];
+//
+//  // Whoever written this code assumed 32 bit system. I don't want to change the
+//  // definition of *seed, so I am doing this blunt force truncation.  God has
+//  // mercy on me...
+//  seed[0]=(int)seed_[0];
+//  seed[1]=(int)seed_[1];
+//  seed[2]=(int)seed_[2];
+//  // End of ugly trunction;
+//  printf("seed[1] = %lu; seed[2] = %lu; seed[3] = %lu\n", (seed_[0]), (seed_[1]), (seed_[2]));
+//  printf("seed[1] = %u; seed[2] = %u; seed[3] = %u\n", (seed[0]), (seed[1]), (seed[2]));
+//
+//
+//  seed[1] = seed[1] ^ (seed[1]<<17);
+//  seed[2] = (seed[2] ^ (seed[2]<<18)) & 0x7FFFFFFF;
+//  seed[0] = 69069*seed[0]+23606797;
+//  seed[1] ^= (seed[1]>>15);
+//  seed[2] ^= (seed[2]>>13);
+//  printf("seed[1] = %u; seed[2] = %u; seed[3] = %u\n", (seed[0]), (seed[1]), (seed[2]));
+//
+//  x = (double)((seed[0]+seed[1]+seed[2])*M);
+//  printf("in kiss, x = %f\n", x);
+// 
+//  /* save the change to *seed_*/
+//  seed_[0]=seed[0];
+//  seed_[1]=seed[1];
+//  seed_[2]=seed[2];
+//
+//  return(x);
+//}
 
 int runiform_n(int n,unsigned long *seed)
 {
@@ -64,9 +92,13 @@ long rmultinomial(double *prob,long len,unsigned long *seed)
  return len-1;
 }
 
-double runif_atob(unsigned long *seed,double a,double b)
+double runif_atob(unsigned long *seed, double a, double b)
 {
- return ((b-a)*kiss(seed) + a);
+  //printf("seed = %lu; a = %f; b = %f\n", *seed, a, b);
+  double unif = kiss(seed);
+  double rtn = ((b - a) * kiss(seed) + a);
+  //printf("unif = %f; rtn = %f\n", unif, rtn);
+  return rtn;
 }
 
 

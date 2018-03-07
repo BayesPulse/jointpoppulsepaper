@@ -35,15 +35,15 @@ extern int mmm;
 /*********************************************************************/
 /*********************************************************************/
 /*birth_death: this runs the birth-death step of the BDMCMC process
-	ARGUMENTS: Node_type *list; this is the current list of pulses that exist;
-	double **ts; this is the matrix of observed data (a column of
-	times and a column of log(concentration);
-	Common_parms *parms; the current values of the common parameters;
-	int N; the number of observations in **ts;
-	double *likeli; the current value of the likelihood;
-	unsigned long *seed; seed values needed for the randon number generator;
-	int iter; which iteration are we on;
-	RETURNS: None; all updates are made internally
+  ARGUMENTS: Node_type *list; this is the current list of pulses that exist;
+  double **ts; this is the matrix of observed data (a column of
+  times and a column of log(concentration);
+  Common_parms *parms; the current values of the common parameters;
+  int N; the number of observations in **ts;
+  double *likeli; the current value of the likelihood;
+  unsigned long *seed; seed values needed for the randon number generator;
+  int iter; which iteration are we on;
+  RETURNS: None; all updates are made internally
  *********************************************************************/
 /*********************************************************************/
 /*VARIABLE DEFINITIONS
@@ -90,154 +90,154 @@ extern int mmm;
  ***********************************************************************/
 
 void birth_death_l(Subject_type *sublist, double **ts, Common_parms *parms, int N,
-	unsigned long *seed, int iter)
+                   unsigned long *seed, int iter)
 {
-	int i, j, k, remove, num_node, flag, aaa, max_num_node = 24, ninter1, ninter2;
-	double S, Birth_rate, T = 1., full_likelihood, full_likelihood2, max, lambda, knew, r;
-	double Death_rate, *death_rate, position, *partial_likelihood, *tmp, br_parent, tmp2[2];
-	Node_type *node, *new_node, *list, *fnode, *cnode;
-	Subject_type *subject;
-	double rnorm(double, double, unsigned long *);
-	double rgamma(double, double, unsigned long  *);
-	void print_list(Node_type *);
-	long rmultinomial(double *, long, unsigned long *);
-	double kiss(unsigned long *);
-	double rexp(double, unsigned long *);
-	double runif_atob(unsigned long *, double, double);
-	void mean_contribution(Node_type *, double **, Common_parms *, int, double);
+  int i, j, k, remove, num_node, flag, aaa, max_num_node = 24, ninter1, ninter2;
+  double S, Birth_rate, T = 1., full_likelihood, full_likelihood2, max, lambda, knew, r;
+  double Death_rate, *death_rate, position, *partial_likelihood, *tmp, br_parent, tmp2[2];
+  Node_type *node, *new_node, *list, *fnode, *cnode;
+  Subject_type *subject;
+  double rnorm(double, double, unsigned long *);
+  double rgamma(double, double, unsigned long  *);
+  void print_list(Node_type *);
+  long rmultinomial(double *, long, unsigned long *);
+  double kiss(unsigned long *);
+  double rexp(double, unsigned long *);
+  double runif_atob(unsigned long *, double, double);
+  void mean_contribution(Node_type *, double **, Common_parms *, int, double);
 
-	double likelihood2(Node_type *list, double **ts, Common_parms *parms, int N,
-		Node_type *node_out, double baseline);
-	Node_type *initialize_node(void);
-	void insert_node(Node_type *new_node, Node_type *list);
-	double *calc_death_rate_l(Node_type *, Node_type *, int, double *, double, double, Common_parms *);
-	double *calc_death_rate(Node_type *, int, double *, double, double, double);
+  double likelihood2(Node_type *list, double **ts, Common_parms *parms, int N,
+                     Node_type *node_out, double baseline);
+  Node_type *initialize_node(void);
+  void insert_node(Node_type *new_node, Node_type *list);
+  double *calc_death_rate_l(Node_type *, Node_type *, int, double *, double, double, Common_parms *);
+  double *calc_death_rate(Node_type *, int, double *, double, double, double);
 
 
-	/*br_parent is the birth rate in a day*/
-	br_parent = parms->beta;
-	if (iter < 10) {
-		Birth_rate = 15 * br_parent;
-	}
-	else {
-		Birth_rate = 24 * br_parent * 2;
-	}
+  /*br_parent is the birth rate in a day*/
+  br_parent = parms->beta;
+  if (iter < 10) {
+    Birth_rate = 15 * br_parent;
+  }
+  else {
+    Birth_rate = 24 * br_parent * 2;
+  }
 
-	subject = sublist->succ;
+  subject = sublist->succ;
 
-	parms->subindex = 0;
+  parms->subindex = 0;
 
-	while (subject != NULL){
+  while (subject != NULL){
 
-		list = subject->driver;
-		aaa = 0;
+    list = subject->driver;
+    aaa = 0;
 
-		S = 0.0;
-		tmp = (double *)calloc(2, sizeof(double));
+    S = 0.0;
+    tmp = (double *)calloc(2, sizeof(double));
 
-		/*Save Likelihood*/
-		/*full_likelihood = *likeli;
-	  */
-		/*Go until the loop is broken*/
+    /*Save Likelihood*/
+    /*full_likelihood = *likeli;
+    */
+    /*Go until the loop is broken*/
 
-		while (1) {
+    while (1) {
 
-			/*This counter keeps this loop from running too many times*/
-			aaa++;
+      /*This counter keeps this loop from running too many times*/
+      aaa++;
 
-			/*Count number of pulses*/
-			num_node = 0;
-			node = list->succ;
-			while (node != NULL) {
-				num_node++;
-				node = node->succ;
-			}
+      /*Count number of pulses*/
+      num_node = 0;
+      node = list->succ;
+      while (node != NULL) {
+        num_node++;
+        node = node->succ;
+      }
 
-			subject->numnode_l = num_node;
-			/*Allocate memory for partial likelihood vector*/
-			partial_likelihood = (double *)calloc(num_node, sizeof(double));
+      subject->numnode_l = num_node;
+      /*Allocate memory for partial likelihood vector*/
+      partial_likelihood = (double *)calloc(num_node, sizeof(double));
 
-			/*Calculate the likelihood if pulse i is removed*/
-			i = 0;
-			node = list->succ;
+      /*Calculate the likelihood if pulse i is removed*/
+      i = 0;
+      node = list->succ;
 
 			/*  printf("num_node = %d \n",num_node);*/
 
-			while (node != NULL) {
-				partial_likelihood[i] = likelihood2(subject->driver, ts, parms, N, node, subject->basehalf_l[0]);
+      while (node != NULL) {
+        partial_likelihood[i] = likelihood2(subject->driver, ts, parms, N, node, subject->basehalf_l[0]);
 				/*printf("partial likelihood = %lf \n",partial_likelihood[i]);*/
-				i++;
-				node = node->succ;
-			}
+        i++;
+        node = node->succ;
+      }
 
-			full_likelihood2 = likelihood2(subject->driver, ts, parms, N, subject->driver, subject->basehalf_l[0]);
+      full_likelihood2 = likelihood2(subject->driver, ts, parms, N, subject->driver, subject->basehalf_l[0]);
 
-			/* CALCULATE DEATH RATE FOR EACH COMPONENT */
-			death_rate = NULL;
-			r = 10.0;
-			if (iter < 1){
-				death_rate = calc_death_rate(list, num_node, partial_likelihood, full_likelihood2, Birth_rate, r);
-			}
+      /* CALCULATE DEATH RATE FOR EACH COMPONENT */
+      death_rate = NULL;
+      r = 10.0;
+      if (iter < 1){
+        death_rate = calc_death_rate(list, num_node, partial_likelihood, full_likelihood2, Birth_rate, r);
+      }
 
-			else {
+      else {
 
-				death_rate = calc_death_rate_l(subject->driver, subject->response, subject->numnode_l, partial_likelihood, full_likelihood2, Birth_rate, parms);
-			}
-
-
-			/*    node = list->succ;
-				i=0;
-				while (node != NULL) {
-				printf("death_rate = %lf \n",death_rate[i]);
-				i++;
-				node = node->succ;
-				}
-				*/
-			/*The next portion computes D = sum(d_i); This is a little more complicated
-			 than summing them up because of precision issues.*/
-			if (death_rate != NULL) {
-				Death_rate = death_rate[0];
-				for (i = 1; i<num_node; i++) {
-					max = (Death_rate > death_rate[i]) ? Death_rate : death_rate[i];
-					Death_rate = log(exp(Death_rate - max) + exp(death_rate[i] - max)) + max;
-				}
-
-				for (i = 0; i < num_node; i++) {
-					death_rate[i] -= Death_rate;
-					death_rate[i] = exp(death_rate[i]);
-				}
-
-				for (i = 1; i < num_node; i++)
-					death_rate[i] += death_rate[i - 1];
-
-				Death_rate = exp(Death_rate);
-			}
-			else
-				Death_rate = 0;
+        death_rate = calc_death_rate_l(subject->driver, subject->response, subject->numnode_l, partial_likelihood, full_likelihood2, Birth_rate, parms);
+      }
 
 
-			free(partial_likelihood);
+      /*    node = list->succ;
+            i=0;
+            while (node != NULL) {
+            printf("death_rate = %lf \n",death_rate[i]);
+            i++;
+            node = node->succ;
+            }
+            */
+      /*The next portion computes D = sum(d_i); This is a little more complicated
+        than summing them up because of precision issues.*/
+      if (death_rate != NULL) {
+        Death_rate = death_rate[0];
+        for (i = 1; i<num_node; i++) {
+          max = (Death_rate > death_rate[i]) ? Death_rate : death_rate[i];
+          Death_rate = log(exp(Death_rate - max) + exp(death_rate[i] - max)) + max;
+        }
+
+        for (i = 0; i < num_node; i++) {
+          death_rate[i] -= Death_rate;
+          death_rate[i] = exp(death_rate[i]);
+        }
+
+        for (i = 1; i < num_node; i++)
+          death_rate[i] += death_rate[i - 1];
+
+        Death_rate = exp(Death_rate);
+      }
+      else
+        Death_rate = 0;
 
 
-			if (num_node <= 1) Death_rate = 0;
+      free(partial_likelihood);
 
-			/* Draw from exp(B+D) and add to current S */
-			S += rexp(Birth_rate + Death_rate, seed);
 
-			/*If S exceeds T or if we've run this too many times, break*/
-			if (S > T)  break;
-			if (aaa > 5000) break;
+      if (num_node <= 1) Death_rate = 0;
 
-			/* SIMULATE JUMP TYPE (BIRTH OR DEATH) */
-			/* If we only have 0 or 1 pulses, we definitely have a birth*/
-			if (num_node <= 1)
-				max = 1.1;
+      /* Draw from exp(B+D) and add to current S */
+      S += rexp(Birth_rate + Death_rate, seed);
 
-			/* If we have too many pulses (60), we definitely have a death*/
-			else if (num_node >= max_num_node)
-				max = -0.1;
+      /*If S exceeds T or if we've run this too many times, break*/
+      if (S > T)  break;
+      if (aaa > 5000) break;
 
-			/* Otherwise, set max = B/(B+D) */
+      /* SIMULATE JUMP TYPE (BIRTH OR DEATH) */
+      /* If we only have 0 or 1 pulses, we definitely have a birth*/
+      if (num_node <= 1)
+        max = 1.1;
+
+      /* If we have too many pulses (60), we definitely have a death*/
+      else if (num_node >= max_num_node)
+        max = -0.1;
+
+      /* Otherwise, set max = B/(B+D) */
       else
         max = Birth_rate / (Birth_rate + Death_rate);
 
@@ -263,9 +263,9 @@ void birth_death_l(Subject_type *sublist, double **ts, Common_parms *parms, int 
             if (fabs(cnode->time - position) <= parms->Rinter2) {
               ninter2++;
             }
-					}
-					cnode = cnode->succ;
-				}
+          }
+          cnode = cnode->succ;
+        }
 
         if (ninter1 == 0) {
           lambda = parms->beta * exp((double)ninter2 * log(parms->gamma));
@@ -281,14 +281,14 @@ void birth_death_l(Subject_type *sublist, double **ts, Common_parms *parms, int 
           if (flag) {
             for (k = 0; k < 100; k++) {
               for (j = 0; j < 2; j++){
-								tmp2[j] = rgamma(2.0, 2.0, seed);
+                tmp2[j] = rgamma(2.0, 2.0, seed);
 
-								tmp[j] = rnorm(subject->theta_l[j], parms->re_precision[j]/sqrt(tmp2[j]), seed);
-							}
-							if ((tmp[0] > 0) && (tmp[1] > 0)) {
-								flag = 0;
-								break;
-							}
+                tmp[j] = rnorm(subject->theta_l[j], parms->re_precision[j]/sqrt(tmp2[j]), seed);
+              }
+              if ((tmp[0] > 0) && (tmp[1] > 0)) {
+                flag = 0;
+                break;
+              }
 
             }
           }
@@ -299,8 +299,8 @@ void birth_death_l(Subject_type *sublist, double **ts, Common_parms *parms, int 
             new_node           = initialize_node();
             new_node->time     = position;
             new_node->theta[0] = tmp[0];
-						new_node->theta[1] = tmp[1];
-						new_node->eta[0] = tmp2[0];
+            new_node->theta[1] = tmp[1];
+            new_node->eta[0]   = tmp2[0];
             new_node->eta[1]   = tmp2[1];
 
 
@@ -315,74 +315,74 @@ void birth_death_l(Subject_type *sublist, double **ts, Common_parms *parms, int 
             while (fnode != NULL) {
               knew = -1 / (2 * parms->nu)* (fnode->time - position) * (fnode->time - position);
 
-							if (fnode->lambda == 0) {
-								fnode->lambda = exp(parms->lrho) / sqrt(2 * 3.14159 * parms->nu) * exp(knew);
-							}
-							else {
-								if (fabs(log(fnode->lambda) - knew) >= 22) {     /*adding the new location is different from the old*/
-									if (knew > log(fnode->lambda))  /*new location adds more to the weight */
-										fnode->lambda = exp(parms->lrho) / sqrt(2 * 3.14159 * parms->nu) * exp(knew);  /*just use the information of the new location  */
-								}
-								else {
-									fnode->lambda += exp(parms->lrho) / sqrt(2 * 3.14159 * parms->nu) * exp(knew);
-								}
-							}
-							fnode = fnode->succ;
-						} /*end of caculating lambda*/
+              if (fnode->lambda == 0) {
+                fnode->lambda = exp(parms->lrho) / sqrt(2 * 3.14159 * parms->nu) * exp(knew);
+              }
+              else {
+                if (fabs(log(fnode->lambda) - knew) >= 22) {     /*adding the new location is different from the old*/
+                  if (knew > log(fnode->lambda))  /*new location adds more to the weight */
+                    fnode->lambda = exp(parms->lrho) / sqrt(2 * 3.14159 * parms->nu) * exp(knew);  /*just use the information of the new location  */
+                }
+                else {
+                  fnode->lambda += exp(parms->lrho) / sqrt(2 * 3.14159 * parms->nu) * exp(knew);
+                }
+              }
+              fnode = fnode->succ;
+            } /*end of caculating lambda*/
 
-					} /*end of flag=0*/
-				}/*end of pulse location*/
+          } /*end of flag=0*/
+        }/*end of pulse location*/
 
-			} /*end of birth occurs*/
-			/*Otherwise, a death occurs */
-			else {
-				/* Pick a node to remove based on the multinomial */
-				//subject->numnode_l--;
-				remove = (int)rmultinomial(death_rate, (long)num_node, seed) + 1;
-				node = list;
-				for (i = 0; i < remove; i++)
-					node = node->succ;
-				fnode = subject->response->succ;
-				while (fnode != NULL){
-					knew = -1 / (2 * parms->nu)* (fnode->time - node->time) * (fnode->time - node->time);
-					if (log(fnode->lambda) - knew >= 0) {
-						/* printf("k %d ldenom %lf tempterm %lf \n",k,log(denomsum[k]),tempterm);*/
-						fnode->lambda -= parms->rho / sqrt(2 * 3.14159 *parms->nu) * exp(knew);
-					}
-					else
-						fnode->lambda = 0;
-					fnode = fnode->succ;
-					/*printf("k %d denomsum[k] %le\n",k,denomsum[k]);*/
-				}
-				delete_node(node, list);
+      } /*end of birth occurs*/
+      /*Otherwise, a death occurs */
+      else {
+        /* Pick a node to remove based on the multinomial */
+        //subject->numnode_l--;
+        remove = (int)rmultinomial(death_rate, (long)num_node, seed) + 1;
+        node = list;
+        for (i = 0; i < remove; i++)
+          node = node->succ;
+        fnode = subject->response->succ;
+        while (fnode != NULL){
+          knew = -1 / (2 * parms->nu)* (fnode->time - node->time) * (fnode->time - node->time);
+          if (log(fnode->lambda) - knew >= 0) {
+            /* printf("k %d ldenom %lf tempterm %lf \n",k,log(denomsum[k]),tempterm);*/
+            fnode->lambda -= parms->rho / sqrt(2 * 3.14159 *parms->nu) * exp(knew);
+          }
+          else
+            fnode->lambda = 0;
+          fnode = fnode->succ;
+          /*printf("k %d denomsum[k] %le\n",k,denomsum[k]);*/
+        }
+        delete_node(node, list);
 
 
-			}
-			free(death_rate);
-			/*  fflush(stdout);*/
-		} /*End of While Loop*/
+      }
+      free(death_rate);
+      /*  fflush(stdout);*/
+    } /*End of While Loop*/
 
-		/*Update likelihood before leaving Birthdeath.c*/
-		/**likeli = full_likelihood;
-	  */
-		/* if (num_node>1)
-			  free(death_rate);*/
+    /*Update likelihood before leaving Birthdeath.c*/
+    /**likeli = full_likelihood;
+    */
+    /* if (num_node>1)
+       free(death_rate);*/
 
-		free(tmp);
-		free(death_rate);
-		/*		free(partial_likelihood);*/
+    free(tmp);
+    free(death_rate);
+    /*    free(partial_likelihood);*/
 
-		subject = subject->succ;
-		parms->subindex++;
+    subject = subject->succ;
+    parms->subindex++;
 
-	}
+  }
 }
 
 void birth_death_f(Subject_type *sublist, double **ts, Common_parms *parms, Common_parms *parms_cox, int N,
-	unsigned long *seed, int iter)
+                   unsigned long *seed, int iter)
 {
-	int i, j, k, remove, num_node, flag, aaa, ninter1,max_num_node = 60;
-	double S, Birth_rate, tot_birth_rate, T = 1., full_likelihood, full_likelihood2, max;
+  int i, j, k, remove, num_node, flag, aaa, ninter1,max_num_node = 60;
+  double S, Birth_rate, tot_birth_rate, T = 1., full_likelihood, full_likelihood2, max;
   double Death_rate, *death_rate, position, *partial_likelihood, *tmp,tmp2[2];
   Node_type *node, *new_node, *list;
   Subject_type *subject;
@@ -395,9 +395,9 @@ void birth_death_f(Subject_type *sublist, double **ts, Common_parms *parms, Comm
   double rexp(double, unsigned long *);
   double runif_atob(unsigned long *, double, double);
   void mean_contribution(Node_type *, double **, Common_parms *, int, double);
-	double likelihood(Subject_type *list, double **ts, Common_parms *parms, int N,
-		Node_type *node_out);
-	double likelihood2(Node_type *list, double **ts, Common_parms *parms, int N,
+  double likelihood(Subject_type *list, double **ts, Common_parms *parms, int N,
+                    Node_type *node_out);
+  double likelihood2(Node_type *list, double **ts, Common_parms *parms, int N,
                      Node_type *node_out, double baseline);
   Node_type *initialize_node(void);
   void insert_node(Node_type *new_node, Node_type *list);
@@ -407,52 +407,53 @@ void birth_death_f(Subject_type *sublist, double **ts, Common_parms *parms, Comm
   double skernel_1(Node_type *, Node_type *, Common_parms *);
 
 
-	/*For first 100 iterations, birth rate is 10, then it becomes 1;
-	This is to force more births early on.*/
-	if (iter < 100) {
-		tot_birth_rate = 10.;
-	}
-	else {
-		tot_birth_rate = 24 * 4.;
-	}
-	Birth_rate = tot_birth_rate / 1520;
+  /*For first 100 iterations, birth rate is 10, then it becomes 1;
+    This is to force more births early on.*/
+  if (iter < 100) {
+    tot_birth_rate = 10.;
+  }
+  else {
+    tot_birth_rate = 24 * 4.;
+  }
 
-	subject = sublist->succ;
+  Birth_rate = tot_birth_rate / (fitend - fitstart); //1520;
 
-	parms->subindex = 0;
+  subject = sublist->succ;
 
-
-	while (subject != NULL){
-
-		list = subject->response;
-		aaa = 0;
-
-		S = 0.0;
-		tmp = (double *)calloc(2, sizeof(double));
-
-		/*Save Likelihood*/
-		/*full_likelihood = *likeli;
-		*/
-		/*Go until the loop is broken*/
-
-		while (1) {
-
-			/*This counter keeps this loop from running too many times*/
-			aaa++;
-
-			/*Count number of pulses*/
-			num_node = 0;
-			node = list->succ;
-			while (node != NULL) {
-				num_node++;
-				node = node->succ;
-			}
+  parms->subindex = 0;
 
 
-			/*Allocate memory for partial likelihood vector*/
-			partial_likelihood = (double *)calloc(num_node, sizeof(double));
+  while (subject != NULL){
 
-			/*Calculate the likelihood if pulse i is removed*/
+    list = subject->response;
+    aaa = 0;
+
+    S = 0.0;
+    tmp = (double *)calloc(2, sizeof(double));
+
+    /*Save Likelihood*/
+    /*full_likelihood = *likeli;
+    */
+    /*Go until the loop is broken*/
+
+    while (1) {
+
+      /*This counter keeps this loop from running too many times*/
+      aaa++;
+
+      /*Count number of pulses*/
+      num_node = 0;
+      node = list->succ;
+      while (node != NULL) {
+        num_node++;
+        node = node->succ;
+      }
+
+
+      /*Allocate memory for partial likelihood vector*/
+      partial_likelihood = (double *)calloc(num_node, sizeof(double));
+
+      /*Calculate the likelihood if pulse i is removed*/
       i = 0;
       node = list->succ;
 
@@ -485,155 +486,155 @@ void birth_death_f(Subject_type *sublist, double **ts, Common_parms *parms, Comm
             i=0;
             while (node != NULL) {
             printf("death_rate = %lf \n",death_rate[i]);
-			i++;
-			node = node->succ;
-			}
-			*/
-			/*The next portion computes D = sum(d_i); This is a little more complicated
-			than summing them up because of precision issues.*/
-			if (death_rate != NULL) {
-				Death_rate = death_rate[0];
-				for (i = 1; i<num_node; i++) {
-					max = (Death_rate > death_rate[i]) ? Death_rate : death_rate[i];
-					Death_rate = log(exp(Death_rate - max) + exp(death_rate[i] - max)) + max;
-				}
+            i++;
+            node = node->succ;
+            }
+      */
+      /*The next portion computes D = sum(d_i); This is a little more complicated
+        than summing them up because of precision issues.*/
+      if (death_rate != NULL) {
+        Death_rate = death_rate[0];
+        for (i = 1; i<num_node; i++) {
+          max = (Death_rate > death_rate[i]) ? Death_rate : death_rate[i];
+          Death_rate = log(exp(Death_rate - max) + exp(death_rate[i] - max)) + max;
+        }
 
-				for (i = 0; i < num_node; i++) {
-					death_rate[i] -= Death_rate;
-					death_rate[i] = exp(death_rate[i]);
-				}
+        for (i = 0; i < num_node; i++) {
+          death_rate[i] -= Death_rate;
+          death_rate[i] = exp(death_rate[i]);
+        }
 
-				for (i = 1; i < num_node; i++)
-					death_rate[i] += death_rate[i - 1];
+        for (i = 1; i < num_node; i++)
+          death_rate[i] += death_rate[i - 1];
 
-				Death_rate = exp(Death_rate);
-			}
-			else
-				Death_rate = 0;
-
-
-			free(partial_likelihood);
+        Death_rate = exp(Death_rate);
+      }
+      else
+        Death_rate = 0;
 
 
-			if (num_node <= 1) Death_rate = 0;
-
-			/* Draw from exp(B+D) and add to current S */
-			S += rexp(tot_birth_rate + Death_rate, seed);
-
-			/*If S exceeds T or if we've run this too many times, break*/
-			if (S > T)  break;
-			if (aaa > 5000) break;
-
-			/* SIMULATE JUMP TYPE (BIRTH OR DEATH) */
-			/* If we only have 0 or 1 pulses, we definitely have a birth*/
-			if (num_node <= 1)
-				max = 1.1;
-
-			/* If we have too many pulses (60), we definitely have a death*/
-			else if (num_node >= max_num_node)
-				max = -0.1;
-
-			/* Otherwise, set max = B/(B+D) */
-			else
-				max = tot_birth_rate / (tot_birth_rate + Death_rate);
-
-			/*    printf("Birth_rate = %lf \n",Birth_rate);
-			printf("Death_rate = %lf \n",Death_rate);
-			*/
-			/*If U < B/(B+D), a birth occurs */
-			if (kiss(seed) < max) {
-				ninter1 = 0;
-				flag=1;
-				/*simulate a pulse position uniformly */
-				/*if the new pulse location is too close to the old one, try it again*/
-				/*like an hard core process*/
-				while (flag==1)
-				{
-					
-					position = runif_atob(seed, fitstart, fitend);
-					node = list->succ;
-					ninter1 =0;
-					while (node != NULL)
-					{
-
-						if (fabs(node->time - position) <10) {
-							ninter1++;
-						}
-						node = node->succ;
-					}
-					if (ninter1 == 0) {
-						flag = 0;
-					
-						
-					}
-
-				}
-				subject->numnode_f++;
-				node = list->succ;
-				flag = 1;
-
-				/* simulate random effects from the prior */
-				if (flag) {
-					for (k = 0; k<100; k++) {
-						for (j = 0; j<2; j++){
-							tmp2[j] = rgamma(2., 2., seed);
-						tmp[j] = rnorm(subject->theta_f[j], parms->re_precision[j]/sqrt(tmp2[j]), seed);
-					}
-						if ((tmp[0] > 0) && (tmp[1] > 0)) {
-							flag = 0;
-							break;
-						}
-
-					}
-					/*Only continue once we have positive values of mass and width*/
-					if (!flag) {
-						/* initialize a new node */
-						new_node = initialize_node();
-						new_node->time = position;
-						new_node->theta[0] = tmp[0];
-						new_node->theta[1] = tmp[1];
-						new_node->eta[0] = tmp2[0];
-						new_node->eta[1] = tmp2[1];
+      free(partial_likelihood);
 
 
-						/*          new_node->width = exp(new_node->theta[1]);*/
-						new_node->mean_contrib = (double *)calloc(N, sizeof(double));
-						mean_contribution(new_node, ts, parms, N, subject->basehalf_f[1]);
-						new_node->lambda = skernel_1(new_node, subject->driver, parms_cox);
-						/* insert the new node; this routine also mskes sure it's
-						located properly */
-						insert_node(new_node, list);
-					}
-				}
-			}
+      if (num_node <= 1) Death_rate = 0;
 
-			/*Otherwise, a death occurs */
-			else {
-				/* Pick a node to remove based on the multinomial */
+      /* Draw from exp(B+D) and add to current S */
+      S += rexp(tot_birth_rate + Death_rate, seed);
 
-				remove = (int)rmultinomial(death_rate, (long)num_node, seed) + 1;
-				node = list;
-				for (i = 0; i < remove; i++)
-					node = node->succ;
-				delete_node(node, list);
-				subject->numnode_f--;
+      /*If S exceeds T or if we've run this too many times, break*/
+      if (S > T)  break;
+      if (aaa > 5000) break;
 
-			}
-			free(death_rate);
-			/*  fflush(stdout);*/
-		} /*End of While Loop*/
+      /* SIMULATE JUMP TYPE (BIRTH OR DEATH) */
+      /* If we only have 0 or 1 pulses, we definitely have a birth*/
+      if (num_node <= 1)
+        max = 1.1;
 
-		/*Update likelihood before leaving Birthdeath.c*/
-		/**likeli = full_likelihood;
-		*/
+      /* If we have too many pulses (60), we definitely have a death*/
+      else if (num_node >= max_num_node)
+        max = -0.1;
 
-		free(tmp);
-		free(death_rate);
+      /* Otherwise, set max = B/(B+D) */
+      else
+        max = tot_birth_rate / (tot_birth_rate + Death_rate);
 
-		subject = subject->succ;
-		parms->subindex++;
+      /*    printf("Birth_rate = %lf \n",Birth_rate);
+            printf("Death_rate = %lf \n",Death_rate);
+            */
+      /*If U < B/(B+D), a birth occurs */
+      if (kiss(seed) < max) {
+        ninter1 = 0;
+        flag=1;
+        /*simulate a pulse position uniformly */
+        /*if the new pulse location is too close to the old one, try it again*/
+        /*like an hard core process*/
+        while (flag==1)
+        {
 
-	}
+          position = runif_atob(seed, fitstart, fitend);
+          node = list->succ;
+          ninter1 =0;
+          while (node != NULL)
+          {
+
+            if (fabs(node->time - position) <10) {
+              ninter1++;
+            }
+            node = node->succ;
+          }
+          if (ninter1 == 0) {
+            flag = 0;
+
+
+          }
+
+        }
+        subject->numnode_f++;
+        node = list->succ;
+        flag = 1;
+
+        /* simulate random effects from the prior */
+        if (flag) {
+          for (k = 0; k<100; k++) {
+            for (j = 0; j<2; j++){
+              tmp2[j] = rgamma(2., 2., seed);
+              tmp[j] = rnorm(subject->theta_f[j], parms->re_precision[j]/sqrt(tmp2[j]), seed);
+            }
+            if ((tmp[0] > 0) && (tmp[1] > 0)) {
+              flag = 0;
+              break;
+            }
+
+          }
+          /*Only continue once we have positive values of mass and width*/
+          if (!flag) {
+            /* initialize a new node */
+            new_node = initialize_node();
+            new_node->time = position;
+            new_node->theta[0] = tmp[0];
+            new_node->theta[1] = tmp[1];
+            new_node->eta[0] = tmp2[0];
+            new_node->eta[1] = tmp2[1];
+
+
+            /*          new_node->width = exp(new_node->theta[1]);*/
+            new_node->mean_contrib = (double *)calloc(N, sizeof(double));
+            mean_contribution(new_node, ts, parms, N, subject->basehalf_f[1]);
+            new_node->lambda = skernel_1(new_node, subject->driver, parms_cox);
+            /* insert the new node; this routine also mskes sure it's
+               located properly */
+            insert_node(new_node, list);
+          }
+        }
+      }
+
+      /*Otherwise, a death occurs */
+      else {
+        /* Pick a node to remove based on the multinomial */
+
+        remove = (int)rmultinomial(death_rate, (long)num_node, seed) + 1;
+        node = list;
+        for (i = 0; i < remove; i++)
+          node = node->succ;
+        delete_node(node, list);
+        subject->numnode_f--;
+
+      }
+      free(death_rate);
+      /*  fflush(stdout);*/
+    } /*End of While Loop*/
+
+    /*Update likelihood before leaving Birthdeath.c*/
+    /**likeli = full_likelihood;
+    */
+
+    free(tmp);
+    free(death_rate);
+
+    subject = subject->succ;
+    parms->subindex++;
+
+  }
 
 }
 /*********************************************************************/
@@ -641,13 +642,13 @@ void birth_death_f(Subject_type *sublist, double **ts, Common_parms *parms, Comm
 /*********************************************************************/
 /*********************************************************************/
 /*mean_contribution: this updates a pulse's mean_contrib vector based on current
-					 values of parameters
-					 ARGUMENTS: Node_type *node; what pulse are we updating;
-					 double **ts; this is the matrix of observed data (a column of
-					 times and a column of log(concentration);
-					 Common_parms *parms; the current values of the common parameters;
-					 int N; the number of observations in **ts;
-					 RETURNS: None; all updates are made internally
+           values of parameters
+           ARGUMENTS: Node_type *node; what pulse are we updating;
+           double **ts; this is the matrix of observed data (a column of
+           times and a column of log(concentration);
+           Common_parms *parms; the current values of the common parameters;
+           int N; the number of observations in **ts;
+           RETURNS: None; all updates are made internally
 *********************************************************************/
 /*********************************************************************/
 /*VARIABLE DEFINITIONS
@@ -661,28 +662,28 @@ void birth_death_f(Subject_type *sublist, double **ts, Common_parms *parms, Comm
 
 void mean_contribution(Node_type *node, double **ts, Common_parms *parms, int N, double halflife)
 {
-	/* This function updates a pulse's mean_contrib vector based on inputted parms*/
-	int i;
-	double x, y, z, tmp;
-	double erf(double);
+  /* This function updates a pulse's mean_contrib vector based on inputted parms*/
+  int i;
+  double x, y, z, tmp;
+  double erf(double);
 
-	/*  printf("theta1 = %lf \n",node->theta[1]);
-	  printf("halflife = %lf \n",halflife);
-	  printf("time = %lf \n",node->time);
-	  printf("theta0 = %lf \n",node->theta[0]);*/
+  /*  printf("theta1 = %lf \n",node->theta[1]);
+    printf("halflife = %lf \n",halflife);
+    printf("time = %lf \n",node->time);
+    printf("theta0 = %lf \n",node->theta[0]);*/
 
-	z = node->theta[1] * 0.6931472 / halflife;
-	y = 0.6931472*(0.5*z / halflife + node->time / halflife);
-	z += node->time;
-	tmp = sqrt(2.*node->theta[1]);
-	for (i = 0; i < N; i++) {
-		x = (ts[i][0] - z) / tmp;
-		x = 0.5*(1. + erf(x));
-		if (x == 0) node->mean_contrib[i] = 0;
-		else node->mean_contrib[i] = node->theta[0] * x*exp(y - ts[i][0] * 0.6931472 / halflife);
+  z = node->theta[1] * 0.6931472 / halflife;
+  y = 0.6931472*(0.5*z / halflife + node->time / halflife);
+  z += node->time;
+  tmp = sqrt(2.*node->theta[1]);
+  for (i = 0; i < N; i++) {
+    x = (ts[i][0] - z) / tmp;
+    x = 0.5*(1. + erf(x));
+    if (x == 0) node->mean_contrib[i] = 0;
+    else node->mean_contrib[i] = node->theta[0] * x*exp(y - ts[i][0] * 0.6931472 / halflife);
 
-	}
-	/* printf("mc55 = %lf \n",node->mean_contrib[55]);
+  }
+  /* printf("mc55 = %lf \n",node->mean_contrib[55]);
 
    fflush(stdout);
    */
@@ -693,14 +694,14 @@ void mean_contribution(Node_type *node, double **ts, Common_parms *parms, int N,
 /*********************************************************************/
 /*********************************************************************/
 /*mean_concentration: this takes each pulse's mean_contrib vector and sums
-					  across them
-					  ARGUMENTS: Node_type *list; this is the current list of pulses that exist;
-					  Common_parms *parms; the current values of the common parameters;
-					  int N; the number of observations in **ts;
-					  Node_type *node_out; if we want, we can ignore a pulse;
-					  double **ts; this is the matrix of observed data (a column of
-					  times and a column of log(concentration);
-					  RETURNS: x, the vector of sums
+            across them
+            ARGUMENTS: Node_type *list; this is the current list of pulses that exist;
+            Common_parms *parms; the current values of the common parameters;
+            int N; the number of observations in **ts;
+            Node_type *node_out; if we want, we can ignore a pulse;
+            double **ts; this is the matrix of observed data (a column of
+            times and a column of log(concentration);
+            RETURNS: x, the vector of sums
 *********************************************************************/
 /*********************************************************************/
 /*VARIABLE DEFINITIONS
@@ -714,35 +715,35 @@ void mean_contribution(Node_type *node, double **ts, Common_parms *parms, int N,
 
 double *mean_concentration(Node_type *list, Common_parms *parms, int N, Node_type *node_out, double baseline)
 {
-	/* This function sums the mean_contrib vector across pulses */
-	/* The result is a vector of sums */
-	int i;
-	double *x;
-	Node_type *node;
-	double rnorm(double, double, unsigned long *);
+  /* This function sums the mean_contrib vector across pulses */
+  /* The result is a vector of sums */
+  int i;
+  double *x;
+  Node_type *node;
+  double rnorm(double, double, unsigned long *);
 
-	x = (double *)calloc(N, sizeof(double));
+  x = (double *)calloc(N, sizeof(double));
 
-	/* add the contribution to the mean from each pulse */
-	node = list->succ;
-	while (node != NULL) {
-		if (node != node_out) {
-			for (i = 0; i < N; i++)
-				x[i] += node->mean_contrib[i];
-		}
-		/*printf("mc15 = %lf \n",node->mean_contrib[15]);
-		printf("x45 = %lf \n",x[45]);
-		*/
-		node = node->succ;
-	}
+  /* add the contribution to the mean from each pulse */
+  node = list->succ;
+  while (node != NULL) {
+    if (node != node_out) {
+      for (i = 0; i < N; i++)
+        x[i] += node->mean_contrib[i];
+    }
+    /*printf("mc15 = %lf \n",node->mean_contrib[15]);
+    printf("x45 = %lf \n",x[45]);
+    */
+    node = node->succ;
+  }
 
-	/* add the baseline contribution */
-	for (i = 0; i < N; i++) {
-		x[i] += baseline;
-		x[i] = log(x[i]);
-	}
+  /* add the baseline contribution */
+  for (i = 0; i < N; i++) {
+    x[i] += baseline;
+    x[i] = log(x[i]);
+  }
 
-	return x;
+  return x;
 }
 
 /*********************************************************************/
@@ -750,15 +751,15 @@ double *mean_concentration(Node_type *list, Common_parms *parms, int N, Node_typ
 /*********************************************************************/
 /*********************************************************************/
 /*likelihood: computes the current likelihood using the observed log-concentrations
-			  and mean concentration
-			  ARGUMENTS: Node_type *list; this is the current list of pulses that exist;
-			  double **ts; this is the matrix of observed data (a column of
-			  times and a column of log(concentration);
-			  Common_parms *parms; the current values of the common parameters;
-			  int N; the number of observations in **ts;
-			  Node_type *node_out; if we want, we can ignore a pulse;
+        and mean concentration
+        ARGUMENTS: Node_type *list; this is the current list of pulses that exist;
+        double **ts; this is the matrix of observed data (a column of
+        times and a column of log(concentration);
+        Common_parms *parms; the current values of the common parameters;
+        int N; the number of observations in **ts;
+        Node_type *node_out; if we want, we can ignore a pulse;
 
-			  RETURNS: x, the likelihood computed based on the inputs
+        RETURNS: x, the likelihood computed based on the inputs
 *********************************************************************/
 /*********************************************************************/
 /*VARIABLE DEFINITIONS
@@ -772,26 +773,26 @@ double *mean_concentration(Node_type *list, Common_parms *parms, int N, Node_typ
 
 
 double likelihood2(Node_type *list, double **ts, Common_parms *parms, int N,
-	Node_type *node_out, double baseline)
+  Node_type *node_out, double baseline)
 {
-	/* This function computes the likelihood under inputted parameters */
-	/* The output is a scalar */
-	int i, j;
-	double x = 0, *mean;
+  /* This function computes the likelihood under inputted parameters */
+  /* The output is a scalar */
+  int i, j;
+  double x = 0, *mean;
 
-	double *mean_concentration(Node_type *, Common_parms *, int, Node_type *, double);
+  double *mean_concentration(Node_type *, Common_parms *, int, Node_type *, double);
 
-	j = parms->subindex;
+  j = parms->subindex;
 
-	/* Sum across mean_contribs */
-	mean = mean_concentration(list, parms, N, node_out, baseline);
-	for (i = 0; i < N; i++)
-		x += (ts[i][j + 1] - mean[i])*(ts[i][j + 1] - mean[i]);
+  /* Sum across mean_contribs */
+  mean = mean_concentration(list, parms, N, node_out, baseline);
+  for (i = 0; i < N; i++)
+    x += (ts[i][j + 1] - mean[i])*(ts[i][j + 1] - mean[i]);
 
-	x /= (-2.0*parms->sigma);
-	x += -0.5*N*(1.8378771 + parms->lsigma);
-	free(mean);
-	return x;
+  x /= (-2.0*parms->sigma);
+  x += -0.5*N*(1.8378771 + parms->lsigma);
+  free(mean);
+  return x;
 }
 
 
@@ -801,15 +802,15 @@ double likelihood2(Node_type *list, double **ts, Common_parms *parms, int N,
 /*********************************************************************/
 /*********************************************************************/
 /*calc_death_rate: calculates a vector of death rates, one for each existing pulse
-	ARGUMENTS: Node_type *list; this is the current list of pulses that exist;
-	int num_node; current number of pulses
-	double *partial_likelihood; vector of likelihoods, where the ith
-	element represents the likelihood with the ith pulse removed
-	double full_likelihood; value of the full likelihood
-	double Birth_rate; value of the birth rate
+  ARGUMENTS: Node_type *list; this is the current list of pulses that exist;
+  int num_node; current number of pulses
+  double *partial_likelihood; vector of likelihoods, where the ith
+  element represents the likelihood with the ith pulse removed
+  double full_likelihood; value of the full likelihood
+  double Birth_rate; value of the birth rate
 
-	RETURNS: death_rate; a vector where the ith element represents the death
-	rate of the ith pulse
+  RETURNS: death_rate; a vector where the ith element represents the death
+  rate of the ith pulse
 *********************************************************************/
 /*********************************************************************/
 /*VARIABLE DEFINITIONS
@@ -828,275 +829,275 @@ double *calc_death_rate_f(Node_type *parent, Node_type *list, int num_node,
 {
   /* This function calculates the death rate vector */
   int i, j;
-	double x, *death_rate, intsum;
-	double coef_denom, coef_num;
-	Node_type *node, *pnode;
-	double skernel_1(Node_type *, Node_type *, Common_parms *);
-	if (num_node > 1) {
-		death_rate = (double *)calloc(num_node, sizeof(double));
-		node = list->succ;
-		i = 0;
+  double x, *death_rate, intsum;
+  double coef_denom, coef_num;
+  Node_type *node, *pnode;
+  double skernel_1(Node_type *, Node_type *, Common_parms *);
+  if (num_node > 1) {
+    death_rate = (double *)calloc(num_node, sizeof(double));
+    node = list->succ;
+    i = 0;
 
-		/* Calculate the coefficient of the distribution of the taus conditional
-		 on number of pulses. In this portion, I have an extra num_node in the
-		 numerator */
+    /* Calculate the coefficient of the distribution of the taus conditional
+     on number of pulses. In this portion, I have an extra num_node in the
+     numerator */
 
-		while (node != NULL) {
-			/*		pnode = parent->succ; */
-					/*calculate the conditional intensity of pulse l*/
-			/*intsum = 0;
-			death_rate[i] = 0.01;
-			while (pnode != NULL) {
-			intsum += exp(parms_cox->lrho) / sqrt(2 * 3.14159*parms_cox->nu) * exp(-1 / (2 * parms_cox->nu) * (node->time - pnode->time) * (node->time - pnode->time));
-			pnode = pnode->succ;
-			}  */
-			if (node->lambda != 0)
-			{
+    while (node != NULL) {
+      /*    pnode = parent->succ; */
+          /*calculate the conditional intensity of pulse l*/
+      /*intsum = 0;
+      death_rate[i] = 0.01;
+      while (pnode != NULL) {
+      intsum += exp(parms_cox->lrho) / sqrt(2 * 3.14159*parms_cox->nu) * exp(-1 / (2 * parms_cox->nu) * (node->time - pnode->time) * (node->time - pnode->time));
+      pnode = pnode->succ;
+      }  */
+      if (node->lambda != 0)
+      {
 
-				x = partial_likelihood[i] - full_likelihood + log(Birth_rate) - log(node->lambda);
-				death_rate[i] = x;
-			}
-			else{
-				x = partial_likelihood[i] - full_likelihood + log(Birth_rate) - log(1e-300);
-				death_rate[i] = x;
-			}
-			node = node->succ;
-			i++;
+        x = partial_likelihood[i] - full_likelihood + log(Birth_rate) - log(node->lambda);
+        death_rate[i] = x;
+      }
+      else{
+        x = partial_likelihood[i] - full_likelihood + log(Birth_rate) - log(1e-300);
+        death_rate[i] = x;
+      }
+      node = node->succ;
+      i++;
 
-		}
-
-
-		/*Save to death rate vector */
+    }
 
 
+    /*Save to death rate vector */
 
 
-		/*Advance to next pulse*/
 
-		/*Advance counter 1*/
 
-	}
-	else {
+    /*Advance to next pulse*/
 
-		/*if we have 0 or 1 pulses*/
-		if (num_node == 0) /*if we don't have any pulses, no death rate*/
-			return NULL;
+    /*Advance counter 1*/
 
-		else {
+  }
+  else {
 
-			/*If we have 1 pulse, don't kill it*/
-			death_rate = (double *)calloc(num_node, sizeof(double));
-			death_rate[0] = -1e300;
-		}
-	}
-	return death_rate;
+    /*if we have 0 or 1 pulses*/
+    if (num_node == 0) /*if we don't have any pulses, no death rate*/
+      return NULL;
+
+    else {
+
+      /*If we have 1 pulse, don't kill it*/
+      death_rate = (double *)calloc(num_node, sizeof(double));
+      death_rate[0] = -1e300;
+    }
+  }
+  return death_rate;
 }
 double *calc_death_rate(Node_type *list, int num_node, double *partial_likelihood, double full_likelihood, double Birth_rate, double r)
 {
-	/* This function calculates the death rate vector */
-	int i, j;
-	double x, *death_rate;
-	double coef_denom, coef_num;
-	Node_type *node;
+  /* This function calculates the death rate vector */
+  int i, j;
+  double x, *death_rate;
+  double coef_denom, coef_num;
+  Node_type *node;
 
-	if (num_node > 1) {
-		death_rate = (double *)calloc(num_node, sizeof(double));
-		node = list->succ;
-		i = 0;
+  if (num_node > 1) {
+    death_rate = (double *)calloc(num_node, sizeof(double));
+    node = list->succ;
+    i = 0;
 
-		/* Calculate the coefficient of the distribution of the taus conditional
-		on number of pulses. In this portion, I have an extra num_node in the
-		numerator */
-		coef_num = 1;
-		for (j = 1; j < mmm; j++)
-			coef_num *= j;
-		coef_denom = mmm*num_node;
-		for (j = 1; j<mmm; j++)
-			coef_denom *= (mmm*num_node + j);
-		while (node != NULL) {
-			if (mmm > 0)
+    /* Calculate the coefficient of the distribution of the taus conditional
+    on number of pulses. In this portion, I have an extra num_node in the
+    numerator */
+    coef_num = 1;
+    for (j = 1; j < mmm; j++)
+      coef_num *= j;
+    coef_denom = mmm*num_node;
+    for (j = 1; j<mmm; j++)
+      coef_denom *= (mmm*num_node + j);
+    while (node != NULL) {
+      if (mmm > 0)
 
-				/*This computes the portion of death rate due to the Poisson prior on
-				N, the birth rate, and the likelihood */
-				x = log(num_node*Birth_rate / r) + partial_likelihood[i] - full_likelihood;
-			else
-				x = log(Birth_rate / num_node) + partial_likelihood[i] - full_likelihood;
+        /*This computes the portion of death rate due to the Poisson prior on
+        N, the birth rate, and the likelihood */
+        x = log(num_node*Birth_rate / r) + partial_likelihood[i] - full_likelihood;
+      else
+        x = log(Birth_rate / num_node) + partial_likelihood[i] - full_likelihood;
 
-			/*Now, compute the portion of the death rate due to distribution of the
-			taus conditional on number of pulses. */
-			if (mmm > 1) {
-				if (i == 0)
+      /*Now, compute the portion of the death rate due to distribution of the
+      taus conditional on number of pulses. */
+      if (mmm > 1) {
+        if (i == 0)
 
-					/*If we are on the first pulse*/
-					x += (mmm - 1)*log(fitend - fitstart) +
-					(mmm - 1)*log((node->succ->time - fitstart) / ((node->succ->time - node->time)*(node->time - fitstart))) + log(coef_num / coef_denom);
+          /*If we are on the first pulse*/
+          x += (mmm - 1)*log(fitend - fitstart) +
+          (mmm - 1)*log((node->succ->time - fitstart) / ((node->succ->time - node->time)*(node->time - fitstart))) + log(coef_num / coef_denom);
 
-				else if (i > 0) {
+        else if (i > 0) {
 
-					/*If we are not on the first pulse */
-					if (node->succ)
-						x += (mmm - 1)*log(fitend - fitstart) +
-						(mmm - 1)*log((node->succ->time - node->pred->time) / ((node->succ->time - node->time)*(node->time - node->pred->time))) + log(coef_num / coef_denom);
+          /*If we are not on the first pulse */
+          if (node->succ)
+            x += (mmm - 1)*log(fitend - fitstart) +
+            (mmm - 1)*log((node->succ->time - node->pred->time) / ((node->succ->time - node->time)*(node->time - node->pred->time))) + log(coef_num / coef_denom);
 
-					/*If we are not on the first or last pulse */
-					else
-						x += (mmm - 1)*log(fitend - fitstart) +
-						(mmm - 1)*log((fitend - node->pred->time) / ((fitend - node->time)*(node->time - node->pred->time))) + log(coef_num / coef_denom);
-				}
-			}
+          /*If we are not on the first or last pulse */
+          else
+            x += (mmm - 1)*log(fitend - fitstart) +
+            (mmm - 1)*log((fitend - node->pred->time) / ((fitend - node->time)*(node->time - node->pred->time))) + log(coef_num / coef_denom);
+        }
+      }
 
-			/*Save to death rate vector */
-			death_rate[i] = x;
+      /*Save to death rate vector */
+      death_rate[i] = x;
 
 
 
-			/*Advance to next pulse*/
-			node = node->succ;
+      /*Advance to next pulse*/
+      node = node->succ;
 
-			/*Advance counter 1*/
-			i++;
-		}
-	}
+      /*Advance counter 1*/
+      i++;
+    }
+  }
 
-	else {
+  else {
 
-		/*if we have 0 or 1 pulses*/
-		if (num_node == 0) /*if we don't have any pulses, no death rate*/
-			return NULL;
+    /*if we have 0 or 1 pulses*/
+    if (num_node == 0) /*if we don't have any pulses, no death rate*/
+      return NULL;
 
-		else {
+    else {
 
-			/*If we have 1 pulse, don't kill it*/
-			death_rate = (double *)calloc(num_node, sizeof(double));
-			death_rate[0] = -1e300;
-		}
-	}
-	return death_rate;
+      /*If we have 1 pulse, don't kill it*/
+      death_rate = (double *)calloc(num_node, sizeof(double));
+      death_rate[0] = -1e300;
+    }
+  }
+  return death_rate;
 }
 /* calculate the log of death rate*/
 double *calc_death_rate_l(Node_type *parent, Node_type *list, int num_node, double *partial_likelihood, double full_likelihood, double Birth_rate, Common_parms *parms_cox)
 {
-	/* This function calculates the death rate vector */
-	int i, j, ninter1, ninter2;
-	double x, *death_rate, itsum, ratio, kdeath, lkdeath, denom;
-	double coef_denom, coef_num;
-	Node_type *node, *tmpcnode, *deathnode;
-	double phi(double, double, double);
+  /* This function calculates the death rate vector */
+  int i, j, ninter1, ninter2;
+  double x, *death_rate, itsum, ratio, kdeath, lkdeath, denom;
+  double coef_denom, coef_num;
+  Node_type *node, *tmpcnode, *deathnode;
+  double phi(double, double, double);
 
-	/*calculate the actually value when number of lh pulse is greater than 1*/
-	if (num_node > 1) {
-		death_rate = (double *)calloc(num_node, sizeof(double));
-		i = 0;
-		deathnode = parent->succ;
+  /*calculate the actually value when number of lh pulse is greater than 1*/
+  if (num_node > 1) {
+    death_rate = (double *)calloc(num_node, sizeof(double));
+    i = 0;
+    deathnode = parent->succ;
 
-		while (deathnode != NULL){
-			/* Calculate the coefficient of the distribution of the taus conditional
-			 on number of pulses. In this portion, I have an extra num_node in the
-			 numerator */
-			node = list->succ;
-			ratio = 0;
+    while (deathnode != NULL){
+      /* Calculate the coefficient of the distribution of the taus conditional
+       on number of pulses. In this portion, I have an extra num_node in the
+       numerator */
+      node = list->succ;
+      ratio = 0;
 
-			while (node != NULL){
-				lkdeath = -1 / (2 * parms_cox->nu) * (node->time - deathnode->time) * (node->time - deathnode->time);
-				kdeath = exp(parms_cox->lrho) / sqrt(2 * 3.14159 *parms_cox->nu) * exp(lkdeath);
-				/*printf("k %d denomsum[k] %le kdeath %le diff %le ratio %le lr %le\n",k,denomsum[k],kdeath,(denomsum[k] - kdeath),denomsum[k]/(denomsum[k] - kdeath),log(denomsum[k]/(denomsum[k] - kdeath)));*/
-				if (node->lambda > kdeath) {
-					/* printf("loop \n");*/
-					/*for model1: no epsilon*/
-					/*ratio += log(parms_cox->epsilon + denomsum[k]) - log(parms_cox->epsilon + denomsum[k] - kdeath); */;
-					ratio += log(node->lambda) - log(node->lambda - kdeath);
-					/* printf("k %d ratio %le ldenomsum %lf lkdeath %lf  diff %le  \n",k,ratio,log(denomsum[k]),lkdeath,denomsum[k] - kdeath);*/
-				}
-				else if (node->lambda != 0){
-					tmpcnode = parent->succ;
-					denom = 0;
-					while (tmpcnode != NULL) {
-						if (tmpcnode->time != deathnode->time) {
-							denom += exp(parms_cox->lrho) / sqrt(2 * 3.14159 *parms_cox->nu) * exp(-1 / (2 * parms_cox->nu) * (node->time - tmpcnode->time) * (node->time - tmpcnode->time));
-						}
-						tmpcnode = tmpcnode->succ;
-					}
-					if (denom != 0){
+      while (node != NULL){
+        lkdeath = -1 / (2 * parms_cox->nu) * (node->time - deathnode->time) * (node->time - deathnode->time);
+        kdeath = exp(parms_cox->lrho) / sqrt(2 * 3.14159 *parms_cox->nu) * exp(lkdeath);
+        /*printf("k %d denomsum[k] %le kdeath %le diff %le ratio %le lr %le\n",k,denomsum[k],kdeath,(denomsum[k] - kdeath),denomsum[k]/(denomsum[k] - kdeath),log(denomsum[k]/(denomsum[k] - kdeath)));*/
+        if (node->lambda > kdeath) {
+          /* printf("loop \n");*/
+          /*for model1: no epsilon*/
+          /*ratio += log(parms_cox->epsilon + denomsum[k]) - log(parms_cox->epsilon + denomsum[k] - kdeath); */;
+          ratio += log(node->lambda) - log(node->lambda - kdeath);
+          /* printf("k %d ratio %le ldenomsum %lf lkdeath %lf  diff %le  \n",k,ratio,log(denomsum[k]),lkdeath,denomsum[k] - kdeath);*/
+        }
+        else if (node->lambda != 0){
+          tmpcnode = parent->succ;
+          denom = 0;
+          while (tmpcnode != NULL) {
+            if (tmpcnode->time != deathnode->time) {
+              denom += exp(parms_cox->lrho) / sqrt(2 * 3.14159 *parms_cox->nu) * exp(-1 / (2 * parms_cox->nu) * (node->time - tmpcnode->time) * (node->time - tmpcnode->time));
+            }
+            tmpcnode = tmpcnode->succ;
+          }
+          if (denom != 0){
 
-						ratio += log(1 + kdeath / (denom));
-					}
-					else
-					{
-						ratio += 10;
-					}
+            ratio += log(1 + kdeath / (denom));
+          }
+          else
+          {
+            ratio += 10;
+          }
 
-				}
-				else ratio += 0;
-				node = node->succ;
+        }
+        else ratio += 0;
+        node = node->succ;
 
-				/* printf("k %d ratio %lf\n",k,ratio);   */
-			}
-
-
-			death_rate[i] = exp(parms_cox->lrho)*(phi(fitend, deathnode->time, sqrt(parms_cox->nu)) - phi(fitstart, deathnode->time, sqrt(parms_cox->nu))) - ratio + partial_likelihood[i] - full_likelihood;
-			deathnode = deathnode->succ;
-			i++;
+        /* printf("k %d ratio %lf\n",k,ratio);   */
+      }
 
 
-		}
-	}
-	else{
-		if (num_node == 0)
-			return NULL;
-		else {
-			death_rate = (double *)calloc(1, sizeof(double));
-			death_rate[0] = -1e300;
-		}
-	}
+      death_rate[i] = exp(parms_cox->lrho)*(phi(fitend, deathnode->time, sqrt(parms_cox->nu)) - phi(fitstart, deathnode->time, sqrt(parms_cox->nu))) - ratio + partial_likelihood[i] - full_likelihood;
+      deathnode = deathnode->succ;
+      i++;
 
-	return death_rate;
+
+    }
+  }
+  else{
+    if (num_node == 0)
+      return NULL;
+    else {
+      death_rate = (double *)calloc(1, sizeof(double));
+      death_rate[0] = -1e300;
+    }
+  }
+
+  return death_rate;
 }
 double *skernel(Node_type *list, Node_type *parents, Common_parms *parms_cox, int npulse) {
 
-	int k;
-	double *sumkernel, tempsum, temp;
-	Node_type *node, *fnode;
+  int k;
+  double *sumkernel, tempsum, temp;
+  Node_type *node, *fnode;
 
-	sumkernel = (double *)calloc(npulse, sizeof(double)); /*npulse is number of fsh pulse*/
-	fnode = list->succ;
-	k = 0;
-	while (fnode != NULL){
-		tempsum = 0;
-		node = parents->succ;
-		while (node != NULL) {
-			temp = -1 / (2 * parms_cox->nu) * (fnode->time - node->time) * (fnode->time - node->time);
-			if (temp > -685)
-				tempsum += exp(parms_cox->lrho) / sqrt(2 * 3.14159 * parms_cox->nu) * exp(temp);
-			node = node->succ;
-		}
-		sumkernel[k] = tempsum;
-		k++;
-		fnode = fnode->succ;
-	}
+  sumkernel = (double *)calloc(npulse, sizeof(double)); /*npulse is number of fsh pulse*/
+  fnode = list->succ;
+  k = 0;
+  while (fnode != NULL){
+    tempsum = 0;
+    node = parents->succ;
+    while (node != NULL) {
+      temp = -1 / (2 * parms_cox->nu) * (fnode->time - node->time) * (fnode->time - node->time);
+      if (temp > -685)
+        tempsum += exp(parms_cox->lrho) / sqrt(2 * 3.14159 * parms_cox->nu) * exp(temp);
+      node = node->succ;
+    }
+    sumkernel[k] = tempsum;
+    k++;
+    fnode = fnode->succ;
+  }
 
-	return sumkernel;
+  return sumkernel;
 }
 
 
 double skernel_1(Node_type *fnode, Node_type *parents, Common_parms *parms_cox) {
 
-	int k;
-	double *sumkernel, tempsum, temp;
-	Node_type *node;
+  int k;
+  double *sumkernel, tempsum, temp;
+  Node_type *node;
 
-	tempsum = 0;
-	node = parents->succ;
-	while (node != NULL) {
-		temp = -1 / (2 * parms_cox->nu) * (fnode->time - node->time) * (fnode->time - node->time);
-		if (temp > -685)
-			tempsum += parms_cox->rho / sqrt(2 * 3.14159 * parms_cox->nu) * exp(temp);
+  tempsum = 0;
+  node = parents->succ;
+  while (node != NULL) {
+    temp = -1 / (2 * parms_cox->nu) * (fnode->time - node->time) * (fnode->time - node->time);
+    if (temp > -685)
+      tempsum += parms_cox->rho / sqrt(2 * 3.14159 * parms_cox->nu) * exp(temp);
 
-		node = node->succ;
-	}
-	if (tempsum == 0)
-		tempsum = 1e-300;
+    node = node->succ;
+  }
+  if (tempsum == 0)
+    tempsum = 1e-300;
 
-	return tempsum;
+  return tempsum;
 }
 
 
