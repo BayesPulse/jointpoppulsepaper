@@ -393,7 +393,7 @@ int main(int argc,char *argv[])
       subject->basehalf_l[0]=bstart1;
       subject->basehalf_f[0]=bstart3;
       subject->basehalf_l[1]=hstart1;
-      subject->basehalf_l[1]=hstart3;
+      subject->basehalf_f[1]=hstart3;
 
 
       subject->theta_l[0]=mstart1;
