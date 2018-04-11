@@ -590,7 +590,7 @@ void mcmc(Subject_type *sublist, Common_parms *parms_l, Common_parms *parms_f, d
               priors->fe_mean_f[1],
               priors->re_var[1][1],
               priors->re_var[0][1],
-              priors->fe_precision_wl,
+              priors->fe_precision_wf,
               parms_f->re_precision[0],
               parms_f->re_precision[1],
               priors->meanbh_f[0],
